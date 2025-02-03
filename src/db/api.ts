@@ -13,7 +13,7 @@ export type Group = typeof groups.$inferSelect;
 export type GroupMember = typeof groupMembers.$inferSelect;
 export type Message = typeof messages.$inferSelect;
 
-// 1. Get user by ethereumAddress
+// Get user by ethereumAddress
 export async function getUserByEthereumAddress(
   db: NeonDatabase,
   address: string
@@ -28,7 +28,22 @@ export async function getUserByEthereumAddress(
   return user;
 }
 
-// 2. Get all groups of a user
+// Get group by id
+export async function getGroupById(
+  db: NeonDatabase,
+  groupId: number
+): Promise<Group> {
+  const [group] = await db
+    .select()
+    .from(groups)
+    .where(eq(groups.id, groupId))
+    .limit(1)
+    .execute();
+
+  return group;
+}
+
+// Get all groups of a user
 export async function getUserGroups(
   db: NeonDatabase,
   userId: number
@@ -43,7 +58,7 @@ export async function getUserGroups(
   return result.map((row) => row.groups);
 }
 
-// 3. Get all groupMembers of a group
+// Get all groupMembers of a group
 export async function getGroupMembers(
   db: NeonDatabase,
   groupId: number
@@ -55,7 +70,7 @@ export async function getGroupMembers(
     .execute();
 }
 
-// 4. Get all messages of a group (ordered by sentAt ascending)
+// Get all messages of a group (ordered by sentAt ascending)
 export async function getGroupMessages(
   db: NeonDatabase,
   groupId: number
@@ -68,7 +83,7 @@ export async function getGroupMessages(
     .execute();
 }
 
-// 5. Create new user
+// Create new user
 export async function createUser(
   db: NeonDatabase,
   userData: Omit<User, "id" | "createdAt" | "profileImageUrl"> & {
@@ -86,7 +101,7 @@ export async function createUser(
   return newUser;
 }
 
-// 6. Create new group
+// Create new group
 export async function createGroup(
   db: NeonDatabase,
   groupData: Omit<Group, "id" | "createdAt" | "createdBy"> & {
@@ -104,7 +119,7 @@ export async function createGroup(
   return newGroup;
 }
 
-// 7. Add a user as a group member with the admin role
+// Add a user as a group member with the admin role
 export async function addAdminToGroup(
   db: NeonDatabase,
   groupId: number,
@@ -124,7 +139,7 @@ export async function addAdminToGroup(
   return member;
 }
 
-// 8. Add a user as a group member with the member role
+// Add a user as a group member with the member role
 export async function addMemberToGroup(
   db: NeonDatabase,
   groupId: number,
@@ -144,7 +159,7 @@ export async function addMemberToGroup(
   return member;
 }
 
-// 9. Add a new message to a group
+// Add a new message to a group
 export async function createMessage(
   db: NeonDatabase,
   messageData: Omit<Message, "id" | "sentAt" | "editedAt"> & {
