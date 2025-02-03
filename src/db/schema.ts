@@ -68,14 +68,3 @@ export const messages = pgTable("messages", {
   sentAt: timestamp("sent_at").defaultNow().notNull(),
   editedAt: timestamp("edited_at"),
 });
-
-// Media Attachments table (stores message media)
-export const mediaAttachments = pgTable("media_attachments", {
-  id: serial("id").primaryKey(),
-  messageId: integer("message_id")
-    .references(() => messages.id, { onDelete: "cascade" })
-    .notNull(),
-  url: text("url").notNull(),
-  type: mediaTypeEnum("type").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});

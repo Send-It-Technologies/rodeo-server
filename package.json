@@ -25,6 +25,7 @@
     "@neondatabase/serverless": "^0.10.4",
     "drizzle-orm": "^0.38.0",
     "hono": "^3.12.2",
+    "thirdweb": "^5.87.2",
     "zod": "^3.23.8"
   },
   "keywords": [

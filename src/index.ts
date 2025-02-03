@@ -1,36 +1,10 @@
-import { Pool } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
 import { Hono } from "hono";
-import { products } from "./db/schema";
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
 
-export type Env = {
-  DATABASE_URL: string;
-};
+// Routes
+import { userRoutes } from "./routes/user";
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ Bindings: { DATABASE_URL: string } }>();
 
-app.get("/", zValidator("query", z.object({})), async (c) => {
-  try {
-    const client = new Pool({ connectionString: c.env.DATABASE_URL });
-
-    const db = drizzle(client);
-
-    const result = await db.select().from(products);
-
-    return c.json({
-      result,
-    });
-  } catch (error) {
-    console.log(error);
-    return c.json(
-      {
-        error,
-      },
-      400
-    );
-  }
-});
+app.route("/user", userRoutes());
 
 export default app;
