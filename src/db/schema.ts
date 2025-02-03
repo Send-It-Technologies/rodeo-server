@@ -30,10 +30,10 @@ export const groups = pgTable("groups", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  spaceContractAddress: text("space_contract_address").unique().notNull(),
-  inviteContractAddress: text("invite_contract_address").unique().notNull(),
-  sharesContractAddress: text("invite_contract_address").unique().notNull(),
-  treasuryContractAddress: text("invite_contract_address").unique().notNull(),
+  spaceContractAddress: text("space_contract_address").notNull(),
+  inviteContractAddress: text("invite_contract_address").notNull(),
+  sharesContractAddress: text("invite_contract_address").notNull(),
+  treasuryContractAddress: text("invite_contract_address").notNull(),
   createdBy: integer("created_by").references(() => users.id, {
     onDelete: "set null",
   }),
@@ -44,8 +44,7 @@ export const groups = pgTable("groups", {
 export const groupMembers = pgTable("group_members", {
   groupId: integer("group_id")
     .references(() => groups.id, { onDelete: "cascade" })
-    .notNull()
-    .primaryKey(),
+    .notNull(),
   userId: integer("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull()

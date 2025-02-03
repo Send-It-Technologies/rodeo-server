@@ -5,8 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1733797954168,
-      "tag": "0000_rare_silver_fox",
+      "when": 1738570846200,
+      "tag": "0000_useful_longshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1738570916428,
+      "tag": "0001_panoramic_whistler",
       "breakpoints": true
     }
   ]

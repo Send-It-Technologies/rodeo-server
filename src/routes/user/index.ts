@@ -14,7 +14,7 @@ export function userRoutes(): Hono<{ Bindings: { DATABASE_URL: string } }> {
   app.get("/get", zValidator("query", UserGetQuery), async (c) => await get(c));
   app.post(
     "/create",
-    zValidator("param", UserCreateParams),
+    zValidator("json", UserCreateParams),
     async (c) => await create(c)
   );
 
