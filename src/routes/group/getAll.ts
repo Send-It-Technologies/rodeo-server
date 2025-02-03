@@ -5,9 +5,12 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
+import { getUserGroups } from "../../db/api";
+
 // Logging
 import { logError400, logError500 } from "../../log/error";
-import { getUserGroups } from "../../db/api";
+
+// Types
 import { GroupGetAllQuery } from "./types";
 
 export async function getAll(c: Context): Promise<Response> {
