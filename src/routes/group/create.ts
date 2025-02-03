@@ -5,7 +5,11 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { createGroup, getUserByEthereumAddress } from "../../db/api";
+import {
+  addAdminToGroup,
+  createGroup,
+  getUserByEthereumAddress,
+} from "../../db/api";
 
 // Blockchain ops
 import { base } from "thirdweb/chains";
@@ -230,7 +234,9 @@ export async function create(c: Context): Promise<Response> {
       treasuryContractAddress: treasury,
     });
 
-    return c.json({ group });
+    const admin = await addAdminToGroup(db, group.id, user.id);
+
+    return c.json({ group, admin });
   } catch (error) {
     return logError500(c, logger, error, startTime);
   }
