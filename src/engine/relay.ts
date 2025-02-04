@@ -29,7 +29,6 @@ export async function relay({
         data: data,
         value: value,
       }),
-      credentials: "include",
     }
   );
 

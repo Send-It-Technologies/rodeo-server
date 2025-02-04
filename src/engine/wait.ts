@@ -25,7 +25,6 @@ export async function waitUntilMined({
       headers: {
         Authorization: `Bearer ${engineAccessToken}`,
       },
-      credentials: "include",
     });
     statusText = response.statusText;
 
