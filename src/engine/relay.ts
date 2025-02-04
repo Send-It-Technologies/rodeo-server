@@ -36,6 +36,6 @@ export async function relay({
     throw new Error(`Failed to relay transaction: ${response.statusText}`);
   }
 
-  const { queueId } = (await response.json()) as { queueId: string };
-  return queueId;
+  const queueId = await response.json();
+  return queueId as string;
 }
