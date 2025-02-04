@@ -8,7 +8,7 @@ export async function waitUntilMined({
   queueId: string;
   engineUrl: string;
   engineAccessToken: string;
-}): Promise<{ transactionHash: string }> {
+}): Promise<string> {
   // Poll engine with queue Id for 10 seconds else timeout
   let pollDuration = polls * 1000;
   let txHash = "";
@@ -49,5 +49,5 @@ export async function waitUntilMined({
     throw new Error(`Engine timed out while waiting for mined: ${statusText}`);
   }
 
-  return { transactionHash: txHash };
+  return txHash;
 }

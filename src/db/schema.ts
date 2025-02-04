@@ -1,19 +1,5 @@
 // db/schema.ts
-import {
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  integer,
-  pgEnum,
-} from "drizzle-orm/pg-core";
-
-// Enums
-export const groupMemberRoleEnum = pgEnum("group_member_role", [
-  "admin",
-  "member",
-]);
-export const mediaTypeEnum = pgEnum("media_type", ["image", "video", "audio"]);
+import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
 
 // Users table (stores user profiles)
 export const users = pgTable("users", {
@@ -30,27 +16,11 @@ export const groups = pgTable("groups", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  spaceContractAddress: text("space_contract_address").notNull(),
+  spaceContractAddress: text("space_contract_address").unique().notNull(),
   inviteContractAddress: text("invite_contract_address").notNull(),
   sharesContractAddress: text("invite_contract_address").notNull(),
   treasuryContractAddress: text("invite_contract_address").notNull(),
-  createdBy: integer("created_by").references(() => users.id, {
-    onDelete: "set null",
-  }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Group Members junction table (many-to-many relationship)
-export const groupMembers = pgTable("group_members", {
-  groupId: integer("group_id")
-    .references(() => groups.id, { onDelete: "cascade" })
-    .notNull(),
-  userId: integer("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull()
-    .primaryKey(),
-  role: groupMemberRoleEnum("role").default("member").notNull(),
-  joinedAt: timestamp("joined_at").defaultNow().notNull(),
 });
 
 // Messages table (stores chat messages)

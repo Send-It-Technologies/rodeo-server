@@ -14,7 +14,7 @@ export async function relay({
   engineUrl: string;
   engineAccessToken: string;
   engineWalletAddress: string;
-}): Promise<{ queueId: string }> {
+}): Promise<string> {
   const response = await fetch(
     `${engineUrl}/backend-wallet/${base.id}/send-transaction`,
     {
@@ -37,6 +37,6 @@ export async function relay({
     throw new Error(`Failed to relay transaction: ${response.statusText}`);
   }
 
-  const res = (await response.json()) as { queueId: string };
-  return res;
+  const { queueId } = (await response.json()) as { queueId: string };
+  return queueId;
 }

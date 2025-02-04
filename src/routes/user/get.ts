@@ -5,7 +5,7 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { getUserByEthereumAddress } from "../../db/api";
+import { getUserByEthereumAddress } from "../../db/api/users";
 
 // Logging
 import { logError400, logError500 } from "../../log/error";
@@ -49,11 +49,6 @@ export async function get(c: Context): Promise<Response> {
 
     // Database operation
     const user = await getUserByEthereumAddress(db, ethereumAddress);
-
-    if (!user) {
-      logger.info(`User not found for address: ${ethereumAddress}`);
-      return logError400(c, "NOT_FOUND", "User not found");
-    }
 
     // Audit logging
     logger.info({

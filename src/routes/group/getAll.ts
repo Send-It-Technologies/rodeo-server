@@ -5,13 +5,10 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { getUserGroups } from "../../db/api";
+import { getAllGroups } from "../../db/api/groups";
 
 // Logging
-import { logError400, logError500 } from "../../log/error";
-
-// Types
-import { GroupGetAllQuery } from "./types";
+import { logError500 } from "../../log/error";
 
 export async function getAll(c: Context): Promise<Response> {
   // Structured logging setup
@@ -23,29 +20,13 @@ export async function getAll(c: Context): Promise<Response> {
     const db = drizzle(client);
 
     // Validate input parameters
-    const q = c.req.query();
-    if (!q.userId) {
-      logger.warn("Missing userId parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Group Id is required as a query parameter"
-      );
-    }
-    const { userId } = GroupGetAllQuery.parse(q);
 
     // Database operation
-    const groups = await getUserGroups(db, userId);
-
-    if (!groups) {
-      logger.info(`User groups not found for address: ${userId}`);
-      return logError400(c, "NOT_FOUND", "User groups not found");
-    }
+    const groups = (await getAllGroups(db)) || [];
 
     // Audit logging
     logger.info({
-      event: "USER_GROUPS_FETCHED",
-      userId: userId,
+      event: "ALL_GROUPS_FETCHED",
       durationMs: Date.now() - startTime,
     });
 

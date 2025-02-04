@@ -5,13 +5,13 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { getGroupById } from "../../db/api";
+import { getGroupByspaceEthereumAddress } from "../../db/api/groups";
 
 // Logging
 import { logError400, logError500 } from "../../log/error";
 
 // Types
-import { GroupGetQuery } from "./types";
+import { isAddress } from "thirdweb";
 
 export async function get(c: Context): Promise<Response> {
   // Structured logging setup
@@ -23,29 +23,44 @@ export async function get(c: Context): Promise<Response> {
     const db = drizzle(client);
 
     // Validate input parameters
-    const q = c.req.query();
-    if (!q.groupId) {
-      logger.warn("Missing groupId parameter");
+    const { spaceEthereumAddress } = c.req.query();
+    if (spaceEthereumAddress) {
+      logger.warn("Missing spaceEthereumAddress parameter");
       return logError400(
         c,
         "VALIDATION_ERROR",
-        "Group Id is required as a query parameter"
+        "Space address is required as a query parameter"
       );
     }
-    const { groupId } = GroupGetQuery.parse(q);
+    if (!isAddress(spaceEthereumAddress)) {
+      logger.warn(`Invalid Ethereum address format: ${spaceEthereumAddress}`);
+      return logError400(
+        c,
+        "VALIDATION_ERROR",
+        "Invalid Ethereum address format",
+        {
+          expectedFormat: "0x followed by 40 hexadecimal characters",
+          receivedValue: spaceEthereumAddress,
+        }
+      );
+    }
 
     // Database operation
-    const group = await getGroupById(db, groupId);
+    const group = await getGroupByspaceEthereumAddress(
+      db,
+      spaceEthereumAddress
+    );
 
     if (!group) {
-      logger.info(`Group not found for address: ${groupId}`);
+      logger.info(`Group not found for address: ${spaceEthereumAddress}`);
       return logError400(c, "NOT_FOUND", "Group not found");
     }
 
     // Audit logging
     logger.info({
       event: "GROUP_FETCHED",
-      groupId: groupId,
+      groupId: group.id,
+      spaceEthereumAddress,
       durationMs: Date.now() - startTime,
     });
 

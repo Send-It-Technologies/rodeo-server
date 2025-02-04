@@ -5,7 +5,7 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { createUser } from "../../db/api";
+import { createUser } from "../../db/api/users";
 
 // Logging
 import { logError400, logError500 } from "../../log/error";
@@ -73,8 +73,8 @@ export async function create(c: Context): Promise<Response> {
     });
 
     if (!user) {
-      logger.info(`User not found for address: ${ethereumAddress}`);
-      return logError400(c, "NOT_FOUND", "User not found");
+      logger.info(`Failed to create user for address: ${ethereumAddress}`);
+      return logError400(c, "FAILED", "Failed to create user");
     }
 
     // Audit logging
