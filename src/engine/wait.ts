@@ -30,13 +30,21 @@ export async function waitUntilMined({
 
     // Set transaction hash if transaction is mined
     if (response.ok) {
-      const { status, transactionHash } = (await response.json()) as {
-        status: string;
-        transactionHash: string;
+      const { result } = (await response.json()) as {
+        result: {
+          status: string;
+          transactionHash: string;
+        };
       };
 
-      if (status == "mined") {
-        txHash = transactionHash;
+      if (result.status == "failed") {
+        throw new Error(
+          `Transaction failed. STATUS: ${statusText} QUEUE_ID: ${queueId}`
+        );
+      }
+
+      if (result.status == "mined") {
+        txHash = result.transactionHash;
         pollDuration = 0;
         break;
       }
