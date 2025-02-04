@@ -37,7 +37,7 @@ export async function waitUntilMined({
         };
       };
 
-      if (result.status == "failed") {
+      if (result.status == "errored") {
         throw new Error(
           `Transaction failed. STATUS: ${statusText} QUEUE_ID: ${queueId}`
         );
