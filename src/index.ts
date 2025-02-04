@@ -31,7 +31,7 @@ type Env = {
 // App
 const app = new Hono<{ Bindings: Env }>();
 
-app.get("/relay", zValidator("json", RelayParams), async (c) => {
+app.post("/relay", zValidator("json", RelayParams), async (c) => {
   // Structured logging setup. TODO: Add proper logging later.
   const logger = console;
   const startTime = Date.now();
