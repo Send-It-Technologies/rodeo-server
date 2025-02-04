@@ -46,7 +46,9 @@ export async function waitUntilMined({
 
   // If no hash was set, error out.
   if (!txHash) {
-    throw new Error(`Engine timed out while waiting for mined: ${statusText}`);
+    throw new Error(
+      `Engine timed out while waiting for mined. STATUS: ${statusText} QUEUE_ID: ${queueId}`
+    );
   }
 
   return txHash;
