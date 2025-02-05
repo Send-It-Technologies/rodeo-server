@@ -8,7 +8,7 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { getGroupMessages } from "../../db/api/messages";
 
 // Logging
-import { logError400, logError500 } from "../../log/error";
+import { logError400, logError500 } from "../../utils/log/error";
 import { MessagesGetAllQuery } from "./types";
 
 export async function getAll(c: Context): Promise<Response> {

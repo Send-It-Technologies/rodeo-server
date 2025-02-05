@@ -2,17 +2,17 @@
 import { Hono } from "hono";
 
 // Engine utils
-import { relay } from "../../engine/relay";
-import { waitUntilMined } from "../../engine/wait";
+import { relay } from "../../utils/engine/relay";
+import { waitUntilMined } from "../../utils/engine/wait";
 
 // Validation utils
 import { isAddress, isHex } from "thirdweb";
-import { logError400, logError500 } from "../../log/error";
+import { logError400, logError500 } from "../../utils/log/error";
 
 // Types
 import { zValidator } from "@hono/zod-validator";
 
-import { Env } from "../../common/types";
+import { Env } from "../../utils/common/types";
 import { RelayParams, RelayParamsType } from "./types";
 
 export function relayRoutes(): Hono<{ Bindings: Env }> {

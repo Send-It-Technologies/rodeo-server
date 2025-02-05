@@ -5,7 +5,7 @@ import { Hono } from "hono";
 import { relayRoutes } from "./routes/relay";
 
 // Types
-import { Env } from "./common/types";
+import { Env } from "./utils/common/types";
 import { userRoutes } from "./routes/user";
 import { groupRoutes } from "./routes/group";
 

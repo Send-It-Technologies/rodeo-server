@@ -8,7 +8,7 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { getAllGroups } from "../../db/api/groups";
 
 // Logging
-import { logError500 } from "../../log/error";
+import { logError500 } from "../../utils/log/error";
 
 export async function getAll(c: Context): Promise<Response> {
   // Structured logging setup

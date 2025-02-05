@@ -7,7 +7,7 @@ import { create } from "./create";
 // Types
 import { zValidator } from "@hono/zod-validator";
 
-import { Env } from "../../common/types";
+import { Env } from "../../utils/common/types";
 import { UserGetQuery, UserCreateParams } from "./types";
 
 export function userRoutes(): Hono<{ Bindings: Env }> {

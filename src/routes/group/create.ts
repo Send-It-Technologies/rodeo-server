@@ -17,14 +17,14 @@ import {
   createThirdwebClient,
 } from "thirdweb";
 
-import { relay } from "../../engine/relay";
-import { waitUntilMined } from "../../engine/wait";
+import { relay } from "../../utils/engine/relay";
+import { waitUntilMined } from "../../utils/engine/wait";
 
 // Logging
-import { logError400, logError500 } from "../../log/error";
+import { logError400, logError500 } from "../../utils/log/error";
 
 // CONSTANTS
-import { RODEO_ADDRESS } from "../../common/constants";
+import { RODEO_ADDRESS } from "../../utils/common/constants";
 
 export async function create(c: Context): Promise<Response> {
   // Structured logging setup

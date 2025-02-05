@@ -8,7 +8,7 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { getUserByEthereumAddress } from "../../db/api/users";
 
 // Logging
-import { logError400, logError500 } from "../../log/error";
+import { logError400, logError500 } from "../../utils/log/error";
 
 // Utils
 import { isAddress } from "thirdweb";

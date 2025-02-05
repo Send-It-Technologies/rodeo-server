@@ -8,7 +8,7 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { getGroupByspaceEthereumAddress } from "../../db/api/groups";
 
 // Logging
-import { logError400, logError500 } from "../../log/error";
+import { logError400, logError500 } from "../../utils/log/error";
 
 // Types
 import { isAddress } from "thirdweb";
