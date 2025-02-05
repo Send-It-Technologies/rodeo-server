@@ -19,8 +19,6 @@ export async function getAll(c: Context): Promise<Response> {
     const client = new Pool({ connectionString: c.env.DATABASE_URL });
     const db = drizzle(client);
 
-    // Validate input parameters
-
     // Database operation
     const groups = (await getAllGroups(db)) || [];
 
