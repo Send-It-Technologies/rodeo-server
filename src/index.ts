@@ -6,10 +6,14 @@ import { relayRoutes } from "./routes/relay";
 
 // Types
 import { Env } from "./common/types";
+import { userRoutes } from "./routes/user";
+import { groupRoutes } from "./routes/group";
 
 // App
 const app = new Hono<{ Bindings: Env }>();
 
+app.route("/users", userRoutes());
 app.route("/relay", relayRoutes());
+app.route("/groups", groupRoutes());
 
 export default app;
