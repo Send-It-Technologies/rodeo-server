@@ -5,13 +5,13 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { getGroupMessages } from "../../db/api/messages";
+import { createMessage } from "../../db/api/messages";
 
 // Logging
 import { logError500 } from "../../utils/log/error";
-import { MessagesGetAllQuery } from "./types";
+import { MessagesNotifyParams } from "./types";
 
-export async function getAll(c: Context): Promise<Response> {
+export async function notify(c: Context): Promise<Response> {
   // Structured logging setup
   const logger = c.env?.logger || console;
   const startTime = Date.now();
@@ -21,20 +21,27 @@ export async function getAll(c: Context): Promise<Response> {
     const db = drizzle(client);
 
     // Validate input parameters
-    const params = c.req.query();
-    const { groupId: parsedGroupId } = MessagesGetAllQuery.parse(params);
+    const params = await c.req.json();
+    const { groupId, senderId, notification } =
+      MessagesNotifyParams.parse(params);
 
     // Database operation
-    const messages = (await getGroupMessages(db, parsedGroupId)) || [];
+    const message = createMessage(db, {
+      groupId,
+      senderId,
+      notification,
+      content: "",
+    });
 
     // Audit logging
     logger.info({
-      event: "ALL_MESSAGES_FETCHED",
-      groupId: parsedGroupId,
+      event: "NEW_NOTIFICATION",
+      groupId,
+      senderId,
       durationMs: Date.now() - startTime,
     });
 
-    return c.json({ messages });
+    return c.json({ message });
   } catch (error) {
     return logError500(c, logger, error, startTime);
   }
