@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1738570846200,
-      "tag": "0000_useful_longshot",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1738570916428,
-      "tag": "0001_panoramic_whistler",
+      "when": 1738734022169,
+      "tag": "0000_cultured_kabuki",
       "breakpoints": true
     }
   ]

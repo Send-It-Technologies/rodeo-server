@@ -1,20 +1,11 @@
-CREATE TYPE "public"."group_member_role" AS ENUM('admin', 'member');--> statement-breakpoint
-CREATE TYPE "public"."media_type" AS ENUM('image', 'video', 'audio');--> statement-breakpoint
-CREATE TABLE "group_members" (
-	"group_id" integer PRIMARY KEY NOT NULL,
-	"user_id" integer PRIMARY KEY NOT NULL,
-	"role" "group_member_role" DEFAULT 'member' NOT NULL,
-	"joined_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "groups" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
 	"space_contract_address" text NOT NULL,
 	"invite_contract_address" text NOT NULL,
-	"created_by" integer,
-	"created_at" timestamp DEFAULT now() NOT NULL
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "groups_space_contract_address_unique" UNIQUE("space_contract_address")
 );
 --> statement-breakpoint
 CREATE TABLE "messages" (
@@ -38,8 +29,5 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_ethereum_address_unique" UNIQUE("ethereum_address")
 );
 --> statement-breakpoint
-ALTER TABLE "group_members" ADD CONSTRAINT "group_members_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "group_members" ADD CONSTRAINT "group_members_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "groups" ADD CONSTRAINT "groups_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "messages" ADD CONSTRAINT "messages_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "messages" ADD CONSTRAINT "messages_sender_id_users_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;
