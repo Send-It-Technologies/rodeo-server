@@ -26,31 +26,6 @@ export async function create(c: Context): Promise<Response> {
     const { username, ethereumAddress, email, profileImageUrl } =
       await c.req.json();
 
-    if (!username) {
-      logger.warn("Missing username parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Username is required as a query parameter"
-      );
-    }
-    if (!ethereumAddress) {
-      logger.warn("Missing ethereumAddress parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Ethereum address is required as a query parameter"
-      );
-    }
-    if (!email) {
-      logger.warn("Missing email parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Email is required as a query parameter"
-      );
-    }
-
     if (!isAddress(ethereumAddress)) {
       logger.warn(`Invalid Ethereum address format: ${ethereumAddress}`);
       return logError400(

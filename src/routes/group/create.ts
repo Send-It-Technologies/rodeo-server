@@ -38,31 +38,6 @@ export async function create(c: Context): Promise<Response> {
     // Validate input parameters
     const { name, description, spaceEthereumAddress } = await c.req.json();
 
-    if (!name) {
-      logger.warn("Missing name parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Name is required as a query parameter"
-      );
-    }
-    if (!description) {
-      logger.warn("Missing description parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Description is required as a query parameter"
-      );
-    }
-
-    if (!spaceEthereumAddress) {
-      logger.warn("Missing space address parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Space address is required as a query parameter"
-      );
-    }
     if (!isAddress(spaceEthereumAddress)) {
       logger.warn(`Invalid Ethereum address format: ${spaceEthereumAddress}`);
       return logError400(

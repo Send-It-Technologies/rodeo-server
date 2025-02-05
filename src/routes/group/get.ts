@@ -24,14 +24,7 @@ export async function get(c: Context): Promise<Response> {
 
     // Validate input parameters
     const { spaceEthereumAddress } = c.req.query();
-    if (spaceEthereumAddress) {
-      logger.warn("Missing spaceEthereumAddress parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Space address is required as a query parameter"
-      );
-    }
+
     if (!isAddress(spaceEthereumAddress)) {
       logger.warn(`Invalid Ethereum address format: ${spaceEthereumAddress}`);
       return logError400(

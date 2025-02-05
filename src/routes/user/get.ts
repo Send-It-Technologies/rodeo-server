@@ -25,15 +25,6 @@ export async function get(c: Context): Promise<Response> {
     // Validate input parameters
     const { ethereumAddress } = c.req.query();
 
-    if (!ethereumAddress) {
-      logger.warn("Missing ethereumAddress parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Ethereum address is required as a query parameter"
-      );
-    }
-
     if (!isAddress(ethereumAddress)) {
       logger.warn(`Invalid Ethereum address format: ${ethereumAddress}`);
       return logError400(

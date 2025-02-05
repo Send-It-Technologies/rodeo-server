@@ -22,15 +22,6 @@ export async function getAll(c: Context): Promise<Response> {
 
     // Validate input parameters
     const params = c.req.query();
-
-    if (!params.groupId) {
-      logger.warn("Missing groupId parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "Group Id is required as a query parameter"
-      );
-    }
     const { groupId: parsedGroupId } = MessagesGetAllQuery.parse(params);
 
     // Database operation

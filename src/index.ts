@@ -40,15 +40,6 @@ app.post("/relay", zValidator("json", RelayParams), async (c) => {
     // Validate input parameters
     const { to, data } = (await c.req.json()) as RelayParamsType;
 
-    if (!to) {
-      logger.warn("Missing to address parameter");
-      return logError400(
-        c,
-        "VALIDATION_ERROR",
-        "To address is required as a query parameter"
-      );
-    }
-
     if (!isAddress(to)) {
       logger.warn(`Invalid Ethereum address format: ${to}`);
       return logError400(
