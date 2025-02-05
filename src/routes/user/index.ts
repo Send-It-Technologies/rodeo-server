@@ -6,10 +6,12 @@ import { create } from "./create";
 
 // Types
 import { zValidator } from "@hono/zod-validator";
+
+import { Env } from "../../common/types";
 import { UserGetQuery, UserCreateParams } from "./types";
 
-export function userRoutes(): Hono<{ Bindings: { DATABASE_URL: string } }> {
-  const app = new Hono<{ Bindings: { DATABASE_URL: string } }>();
+export function userRoutes(): Hono<{ Bindings: Env }> {
+  const app = new Hono<{ Bindings: Env }>();
 
   app.get("/get", zValidator("query", UserGetQuery), async (c) => await get(c));
   app.post(

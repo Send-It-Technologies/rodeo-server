@@ -24,7 +24,7 @@ import { waitUntilMined } from "../../engine/wait";
 import { logError400, logError500 } from "../../log/error";
 
 // CONSTANTS
-import { RODEO_ADDRESS } from "../../constants";
+import { RODEO_ADDRESS } from "../../common/constants";
 
 export async function create(c: Context): Promise<Response> {
   // Structured logging setup

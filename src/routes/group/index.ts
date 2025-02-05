@@ -7,10 +7,12 @@ import { create } from "./create";
 
 // Types
 import { zValidator } from "@hono/zod-validator";
+
+import { Env } from "../../common/types";
 import { GroupGetQuery, GroupCreateParams } from "./types";
 
-export function groupRoutes(): Hono<{ Bindings: { DATABASE_URL: string } }> {
-  const app = new Hono<{ Bindings: { DATABASE_URL: string } }>();
+export function groupRoutes(): Hono<{ Bindings: Env }> {
+  const app = new Hono<{ Bindings: Env }>();
 
   // Get a group by space address.
   app.get(
