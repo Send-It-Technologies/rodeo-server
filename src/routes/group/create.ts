@@ -23,7 +23,7 @@ import { waitUntilMined } from "../../utils/engine/wait";
 // Logging
 import { logError400, logError500 } from "../../utils/log/error";
 
-// CONSTANTS
+// Constants
 import { RODEO_ADDRESS } from "../../utils/common/constants";
 
 export async function create(c: Context): Promise<Response> {
