@@ -15,8 +15,8 @@ export const groups = pgTable("groups", {
   description: text("description"),
   spaceContractAddress: text("space_contract_address").unique().notNull(),
   inviteContractAddress: text("invite_contract_address").notNull(),
-  sharesContractAddress: text("invite_contract_address").notNull(),
-  treasuryContractAddress: text("invite_contract_address").notNull(),
+  sharesContractAddress: text("shares_contract_address").notNull(),
+  treasuryContractAddress: text("treasury_contract_address").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

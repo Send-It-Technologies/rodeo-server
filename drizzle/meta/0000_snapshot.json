@@ -1,5 +1,5 @@
 {
-  "id": "555f5a1f-a2f5-4f40-99fc-24da039ea566",
+  "id": "4214c2c5-dfb2-42c6-b47b-428c69cbb00b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -34,6 +34,18 @@
         },
         "invite_contract_address": {
           "name": "invite_contract_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shares_contract_address": {
+          "name": "shares_contract_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "treasury_contract_address": {
+          "name": "treasury_contract_address",
           "type": "text",
           "primaryKey": false,
           "notNull": true

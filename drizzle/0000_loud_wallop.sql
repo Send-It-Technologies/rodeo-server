@@ -4,6 +4,8 @@ CREATE TABLE "groups" (
 	"description" text,
 	"space_contract_address" text NOT NULL,
 	"invite_contract_address" text NOT NULL,
+	"shares_contract_address" text NOT NULL,
+	"treasury_contract_address" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "groups_space_contract_address_unique" UNIQUE("space_contract_address")
 );
