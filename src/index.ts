@@ -23,6 +23,13 @@ app.use(
     allowHeaders: ["Content-Type"],
   })
 );
+app.use(
+  "*",
+  cors({
+    origin: "http://localhost:5173", // Allow only your frontend
+    credentials: true,
+  })
+);
 
 app.route("/quote", quoteRoutes());
 app.route("/relay", relayRoutes());
