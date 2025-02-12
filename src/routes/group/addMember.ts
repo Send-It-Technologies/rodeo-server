@@ -67,7 +67,7 @@ export async function getAll(c: Context): Promise<Response> {
     const queueId = await relay({
       to: joinTx.to as string,
       data: joinTx.data as string,
-      value: (joinTx.value as BigInt).toString(),
+      value: "0",
       engineUrl: c.env.ENGINE_INSTANCE_URL,
       engineAccessToken: c.env.ENGINE_AUTH_TOKEN,
       engineWalletAddress: c.env.ENGINE_WALLET_ADDRESS,
