@@ -34,7 +34,7 @@ export async function getCreateAndRegisterTx({
         symbol,
         price: BigInt(0),
         maxSupply: BigInt(100),
-        duration: maxUint256,
+        duration: BigInt(86_400 * 365 * 100),
         currency: ZERO_ADDRESS,
         feeRecipient: adminEthereumAddress,
         freeAllocation: BigInt(100),
