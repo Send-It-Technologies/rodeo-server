@@ -1,5 +1,6 @@
 // Server
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 
 // Routes
 import { relayRoutes } from "./routes/relay";
@@ -12,6 +13,16 @@ import { quoteRoutes } from "./routes/quote";
 
 // App
 const app = new Hono<{ Bindings: Env }>();
+
+// Enable CORS for all routes
+app.use(
+  "*",
+  cors({
+    origin: "http://localhost:5173", // Allow only your frontend
+    allowMethods: ["GET", "POST", "OPTIONS"],
+    allowHeaders: ["Content-Type"],
+  })
+);
 
 app.route("/quote", quoteRoutes());
 app.route("/relay", relayRoutes());
