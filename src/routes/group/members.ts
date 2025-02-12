@@ -4,11 +4,16 @@ import { Context } from "hono";
 // Logging
 import { logError400, logError500 } from "../../utils/log/error";
 
-// Blockchain ops
-import { getSpaceMembers } from "../../utils/rodeo/members";
+// DB Ops
+import { Pool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
 
 // Utils
 import { isAddress } from "thirdweb";
+import {
+  getGroupBySpaceEthereumAddress,
+  getMembersByGroupId,
+} from "../../db/api/groups";
 
 export async function members(c: Context): Promise<Response> {
   // Structured logging setup
@@ -16,6 +21,9 @@ export async function members(c: Context): Promise<Response> {
   const startTime = Date.now();
 
   try {
+    const client = new Pool({ connectionString: c.env.DATABASE_URL });
+    const db = drizzle(client);
+
     // Validate input parameters
     const { spaceEthereumAddress } = c.req.query();
 
@@ -33,10 +41,11 @@ export async function members(c: Context): Promise<Response> {
     }
 
     // Blockchain read
-    const members = await getSpaceMembers({
-      spaceAddress: spaceEthereumAddress,
-      thirdwebSecretKey: c.env.THIRDWEB_SECRET_KEY,
-    });
+    const group = await getGroupBySpaceEthereumAddress(
+      db,
+      spaceEthereumAddress
+    );
+    const members = await getMembersByGroupId(db, group.id);
 
     // Audit logging
     logger.info({

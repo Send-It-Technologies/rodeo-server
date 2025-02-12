@@ -8,8 +8,15 @@ import { create } from "./create";
 // Types
 import { zValidator } from "@hono/zod-validator";
 import { Env } from "../../utils/common/types";
-import { GroupGetQuery, GroupCreateParams, GroupMembersQuery } from "./types";
+import {
+  GroupGetQuery,
+  GroupCreateParams,
+  GroupMembersQuery,
+  GroupAllOfMemberQuery,
+  GroupAddMemberParams,
+} from "./types";
 import { members } from "./members";
+import { getAllOfMember } from "./getAllOfMember";
 
 export function groupRoutes(): Hono<{ Bindings: Env }> {
   const app = new Hono<{ Bindings: Env }>();
@@ -21,7 +28,7 @@ export function groupRoutes(): Hono<{ Bindings: Env }> {
     async (c) => await get(c)
   );
 
-  // Get group members by space address.
+  // Get all members of a group by space address.
   app.get(
     "/members",
     zValidator("query", GroupMembersQuery),
@@ -29,12 +36,26 @@ export function groupRoutes(): Hono<{ Bindings: Env }> {
   );
 
   // Get all groups.
-  app.get("/getAll", async (c) => await getAll(c));
+  app.get("/all", async (c) => await getAll(c));
+
+  // Get all groups of a member by member address.
+  app.get(
+    "/ofmember",
+    zValidator("query", GroupAllOfMemberQuery),
+    async (c) => await getAllOfMember(c)
+  );
 
   // Create a group (and register its space on Rodeo, if not already)
   app.post(
     "/create",
     zValidator("json", GroupCreateParams),
+    async (c) => await create(c)
+  );
+
+  // Add member to a group.
+  app.post(
+    "/addmember",
+    zValidator("json", GroupAddMemberParams),
     async (c) => await create(c)
   );
 

@@ -11,7 +11,7 @@ import { getGroupsByMemberAddress } from "../../db/api/groups";
 import { logError400, logError500 } from "../../utils/log/error";
 import { isAddress } from "thirdweb";
 
-export async function getAll(c: Context): Promise<Response> {
+export async function getAllOfMember(c: Context): Promise<Response> {
   // Structured logging setup
   const logger = c.env?.logger || console;
   const startTime = Date.now();
