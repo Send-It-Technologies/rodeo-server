@@ -1,5 +1,12 @@
 // db/schema.ts
-import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  integer,
+  primaryKey,
+} from "drizzle-orm/pg-core";
 
 // Groups table (stores group information)
 export const groups = pgTable("groups", {
@@ -25,3 +32,20 @@ export const messages = pgTable("messages", {
   sentAt: timestamp("sent_at").defaultNow().notNull(),
   editedAt: timestamp("edited_at"),
 });
+
+// Members of a group
+export const members = pgTable(
+  "members",
+  {
+    groupId: integer("group_id")
+      .references(() => groups.id, { onDelete: "cascade" })
+      .notNull(),
+    memberEthereumAddress: text("member_ethereum_address").notNull(),
+    email: text("email").notNull(),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.groupId, table.memberEthereumAddress] }),
+    };
+  }
+);

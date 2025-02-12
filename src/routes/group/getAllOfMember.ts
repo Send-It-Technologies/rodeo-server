@@ -5,15 +5,13 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { getGroupBySpaceEthereumAddress } from "../../db/api/groups";
+import { getGroupsByMemberAddress } from "../../db/api/groups";
 
 // Logging
 import { logError400, logError500 } from "../../utils/log/error";
-
-// Utils
 import { isAddress } from "thirdweb";
 
-export async function get(c: Context): Promise<Response> {
+export async function getAll(c: Context): Promise<Response> {
   // Structured logging setup
   const logger = c.env?.logger || console;
   const startTime = Date.now();
@@ -23,41 +21,33 @@ export async function get(c: Context): Promise<Response> {
     const db = drizzle(client);
 
     // Validate input parameters
-    const { spaceEthereumAddress } = c.req.query();
+    const { memberEthereumAddress } = c.req.query();
 
-    if (!isAddress(spaceEthereumAddress)) {
-      logger.warn(`Invalid Ethereum address format: ${spaceEthereumAddress}`);
+    if (!isAddress(memberEthereumAddress)) {
+      logger.warn(`Invalid Ethereum address format: ${memberEthereumAddress}`);
       return logError400(
         c,
         "VALIDATION_ERROR",
         "Invalid Ethereum address format",
         {
           expectedFormat: "0x followed by 40 hexadecimal characters",
-          receivedValue: spaceEthereumAddress,
+          receivedValue: memberEthereumAddress,
         }
       );
     }
 
     // Database operation
-    const group = await getGroupBySpaceEthereumAddress(
-      db,
-      spaceEthereumAddress
-    );
-
-    if (!group) {
-      logger.info(`Group not found for address: ${spaceEthereumAddress}`);
-      return logError400(c, "NOT_FOUND", "Group not found");
-    }
+    const groups =
+      (await getGroupsByMemberAddress(db, memberEthereumAddress)) || [];
 
     // Audit logging
     logger.info({
-      event: "GROUP_FETCHED",
-      groupId: group.id,
-      spaceEthereumAddress,
+      event: "MEMBER_GROUPS_FETCHED",
+      memberEthereumAddress,
       durationMs: Date.now() - startTime,
     });
 
-    return c.json({ group });
+    return c.json({ groups });
   } catch (error) {
     return logError500(c, logger, error, startTime);
   }

@@ -1,5 +1,5 @@
 {
-  "id": "26f63a9f-670b-464f-beae-14fedf4335e3",
+  "id": "555f5a1f-a2f5-4f40-99fc-24da039ea566",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -58,6 +58,59 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.members": {
+      "name": "members",
+      "schema": "",
+      "columns": {
+        "group_id": {
+          "name": "group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "member_ethereum_address": {
+          "name": "member_ethereum_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "members_group_id_groups_id_fk": {
+          "name": "members_group_id_groups_id_fk",
+          "tableFrom": "members",
+          "tableTo": "groups",
+          "columnsFrom": [
+            "group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "members_group_id_member_ethereum_address_pk": {
+          "name": "members_group_id_member_ethereum_address_pk",
+          "columns": [
+            "group_id",
+            "member_ethereum_address"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

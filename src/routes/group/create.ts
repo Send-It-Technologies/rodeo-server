@@ -5,7 +5,7 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { createGroup } from "../../db/api/groups";
+import { addMemberToGroup, createGroup } from "../../db/api/groups";
 
 // Blockchain ops
 import { relay } from "../../utils/engine/relay";
@@ -37,6 +37,7 @@ export async function create(c: Context): Promise<Response> {
       name,
       symbol,
       description,
+      adminEmailAddress,
       adminEthereumAddress,
     }: GroupCreateParamsType = await c.req.json();
 
@@ -54,7 +55,7 @@ export async function create(c: Context): Promise<Response> {
     }
 
     // Build transaction to register a space.
-    const registerTx = await getCreateAndRegisterTx({
+    const registerTx = getCreateAndRegisterTx({
       name,
       symbol,
       description,
@@ -106,6 +107,13 @@ export async function create(c: Context): Promise<Response> {
       inviteContractAddress: inviteToken,
       treasuryContractAddress: treasury,
     });
+
+    await addMemberToGroup(
+      db,
+      group.id,
+      adminEthereumAddress,
+      adminEmailAddress
+    );
 
     return c.json({ group });
   } catch (error) {
