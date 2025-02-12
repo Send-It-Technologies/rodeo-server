@@ -11,14 +11,17 @@ import { createGroup } from "../../db/api/groups";
 import { relay } from "../../utils/engine/relay";
 import { waitUntilMined } from "../../utils/engine/wait";
 import { getTransactionReceipt } from "../../utils/engine/receipt";
+import { getCreateAndRegisterTx } from "../../utils/rodeo/register";
 import { decodeRegisterResult } from "../../utils/rodeo/decodeRegisterResult";
 
 // Logging
-import { logError500 } from "../../utils/log/error";
+import { logError400, logError500 } from "../../utils/log/error";
 
 // Types
 import { GroupCreateParamsType } from "./types";
-import { getCreateAndRegisterTx } from "../../utils/rodeo/register";
+
+// Utils
+import { isAddress } from "thirdweb";
 
 export async function create(c: Context): Promise<Response> {
   // Structured logging setup
@@ -29,13 +32,26 @@ export async function create(c: Context): Promise<Response> {
     const client = new Pool({ connectionString: c.env.DATABASE_URL });
     const db = drizzle(client);
 
-    // Get input parameters
+    // Validate input parameters
     const {
       name,
       symbol,
       description,
       adminEthereumAddress,
     }: GroupCreateParamsType = await c.req.json();
+
+    if (!isAddress(adminEthereumAddress)) {
+      logger.warn(`Invalid Ethereum address format: ${adminEthereumAddress}`);
+      return logError400(
+        c,
+        "VALIDATION_ERROR",
+        "Invalid Ethereum address format",
+        {
+          expectedFormat: "0x followed by 40 hexadecimal characters",
+          receivedValue: adminEthereumAddress,
+        }
+      );
+    }
 
     // Build transaction to register a space.
     const registerTx = await getCreateAndRegisterTx({

@@ -1,8 +1,7 @@
 import { eq } from "drizzle-orm";
-import { users, groups } from "../schema";
+import { groups } from "../schema";
 import { NeonDatabase } from "drizzle-orm/neon-serverless";
 
-export type User = typeof users.$inferSelect;
 export type Group = typeof groups.$inferSelect;
 
 // Get group by id

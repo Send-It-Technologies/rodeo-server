@@ -7,7 +7,6 @@ import { create } from "./create";
 
 // Types
 import { zValidator } from "@hono/zod-validator";
-
 import { Env } from "../../utils/common/types";
 import { GroupGetQuery, GroupCreateParams } from "./types";
 

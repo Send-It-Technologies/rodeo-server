@@ -22,13 +22,13 @@ export async function notify(c: Context): Promise<Response> {
 
     // Validate input parameters
     const params = await c.req.json();
-    const { groupId, senderId, notification } =
+    const { groupId, senderEthereumAddress, notification } =
       MessagesNotifyParams.parse(params);
 
     // Database operation
     const message = createMessage(db, {
       groupId,
-      senderId,
+      senderEthereumAddress,
       notification,
       content: "",
     });
@@ -37,7 +37,7 @@ export async function notify(c: Context): Promise<Response> {
     logger.info({
       event: "NEW_NOTIFICATION",
       groupId,
-      senderId,
+      senderEthereumAddress,
       durationMs: Date.now() - startTime,
     });
 

@@ -1,16 +1,6 @@
 // db/schema.ts
 import { pgTable, serial, text, timestamp, integer } from "drizzle-orm/pg-core";
 
-// Users table (stores user profiles)
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull(),
-  email: text("email").unique().notNull(),
-  ethereumAddress: text("ethereum_address").unique().notNull(),
-  profileImageUrl: text("profile_image_url"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
 // Groups table (stores group information)
 export const groups = pgTable("groups", {
   id: serial("id").primaryKey(),
@@ -29,9 +19,7 @@ export const messages = pgTable("messages", {
   groupId: integer("group_id")
     .references(() => groups.id, { onDelete: "cascade" })
     .notNull(),
-  senderId: integer("sender_id").references(() => users.id, {
-    onDelete: "set null",
-  }),
+  senderEthereumAddress: text("ethereum_address").unique().notNull(),
   content: text("content").notNull(),
   notification: text("notification"),
   sentAt: timestamp("sent_at").defaultNow().notNull(),

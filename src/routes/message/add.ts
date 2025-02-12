@@ -4,12 +4,16 @@ import { Context } from "hono";
 // DB Ops
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
-
 import { createMessage } from "../../db/api/messages";
 
 // Logging
-import { logError500 } from "../../utils/log/error";
+import { logError400, logError500 } from "../../utils/log/error";
+
+// Types
 import { MessagesAddParams } from "./types";
+
+// Utils
+import { isAddress } from "thirdweb";
 
 export async function add(c: Context): Promise<Response> {
   // Structured logging setup
@@ -22,13 +26,27 @@ export async function add(c: Context): Promise<Response> {
 
     // Validate input parameters
     const params = await c.req.json();
-    const { groupId, senderId, content } = MessagesAddParams.parse(params);
+    const { groupId, senderEthereumAddress, content } =
+      MessagesAddParams.parse(params);
+
+    if (!isAddress(senderEthereumAddress)) {
+      logger.warn(`Invalid Ethereum address format: ${senderEthereumAddress}`);
+      return logError400(
+        c,
+        "VALIDATION_ERROR",
+        "Invalid Ethereum address format",
+        {
+          expectedFormat: "0x followed by 40 hexadecimal characters",
+          receivedValue: senderEthereumAddress,
+        }
+      );
+    }
 
     // Database operation
     const message = createMessage(db, {
       groupId,
-      senderId,
       content,
+      senderEthereumAddress,
       notification: "",
     });
 
@@ -36,7 +54,7 @@ export async function add(c: Context): Promise<Response> {
     logger.info({
       event: "NEW_MESSAGE",
       groupId,
-      senderId,
+      senderEthereumAddress,
       durationMs: Date.now() - startTime,
     });
 

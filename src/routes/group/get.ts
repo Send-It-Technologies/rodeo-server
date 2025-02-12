@@ -10,7 +10,7 @@ import { getGroupByspaceEthereumAddress } from "../../db/api/groups";
 // Logging
 import { logError400, logError500 } from "../../utils/log/error";
 
-// Types
+// Utils
 import { isAddress } from "thirdweb";
 
 export async function get(c: Context): Promise<Response> {

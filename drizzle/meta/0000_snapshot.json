@@ -1,5 +1,5 @@
 {
-  "id": "067888c3-0930-4a39-b49d-6f04843fd603",
+  "id": "26f63a9f-670b-464f-beae-14fedf4335e3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -78,11 +78,11 @@
           "primaryKey": false,
           "notNull": true
         },
-        "sender_id": {
-          "name": "sender_id",
-          "type": "integer",
+        "ethereum_address": {
+          "name": "ethereum_address",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "content": {
           "name": "content",
@@ -124,82 +124,12 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
-        },
-        "messages_sender_id_users_id_fk": {
-          "name": "messages_sender_id_users_id_fk",
-          "tableFrom": "messages",
-          "tableTo": "users",
-          "columnsFrom": [
-            "sender_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.users": {
-      "name": "users",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "username": {
-          "name": "username",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ethereum_address": {
-          "name": "ethereum_address",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "profile_image_url": {
-          "name": "profile_image_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
-        },
-        "users_ethereum_address_unique": {
-          "name": "users_ethereum_address_unique",
+        "messages_ethereum_address_unique": {
+          "name": "messages_ethereum_address_unique",
           "nullsNotDistinct": false,
           "columns": [
             "ethereum_address"
