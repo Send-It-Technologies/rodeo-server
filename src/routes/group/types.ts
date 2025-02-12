@@ -6,8 +6,9 @@ export const GroupGetQuery = z.object({
 
 export const GroupCreateParams = z.object({
   name: z.string().max(20),
+  symbol: z.string().max(5),
   description: z.string().max(50),
-  spaceEthereumAddress: z.string().startsWith("0x"),
+  adminEthereumAddress: z.string().startsWith("0x"),
 });
 
 export type GroupGetQueryType = z.infer<typeof GroupGetQuery>;
