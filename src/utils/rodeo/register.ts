@@ -1,15 +1,15 @@
 import {
   createThirdwebClient,
+  encode,
   getContract,
   prepareContractCall,
-  PreparedTransaction,
   ZERO_ADDRESS,
 } from "thirdweb";
 import { maxUint256 } from "thirdweb/utils";
 import { PRICE_MODULE_ADDRESS, RODEO_ADDRESS } from "../common/constants";
 import { base } from "thirdweb/chains";
 
-export function getCreateAndRegisterTx({
+export async function getCreateAndRegisterTx({
   name,
   symbol,
   description,
@@ -21,7 +21,7 @@ export function getCreateAndRegisterTx({
   description: string;
   adminEthereumAddress: string;
   thirdwebSecretKey: string;
-}): PreparedTransaction {
+}): Promise<{ to: string; data: string }> {
   // Build register params
   const spaceInfo = {
     name,
@@ -225,5 +225,5 @@ export function getCreateAndRegisterTx({
     },
   });
 
-  return registerTransaction;
+  return { to: RODEO_ADDRESS, data: await encode(registerTransaction) };
 }

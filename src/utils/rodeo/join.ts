@@ -1,12 +1,12 @@
 import {
   createThirdwebClient,
+  encode,
   getContract,
   prepareContractCall,
-  PreparedTransaction,
 } from "thirdweb";
 import { base } from "thirdweb/chains";
 
-export function getJoinTx({
+export async function getJoinTx({
   spaceEthereumAddress,
   memberEthereumAddress,
   thirdwebSecretKey,
@@ -14,7 +14,7 @@ export function getJoinTx({
   spaceEthereumAddress: string;
   memberEthereumAddress: string;
   thirdwebSecretKey: string;
-}): PreparedTransaction {
+}): Promise<{ to: string; data: string }> {
   const joinTx = prepareContractCall({
     contract: getContract({
       client: createThirdwebClient({ secretKey: thirdwebSecretKey }),
@@ -25,5 +25,5 @@ export function getJoinTx({
     params: [memberEthereumAddress],
   });
 
-  return joinTx;
+  return { to: spaceEthereumAddress, data: await encode(joinTx) };
 }

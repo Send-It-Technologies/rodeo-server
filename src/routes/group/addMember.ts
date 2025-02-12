@@ -57,7 +57,7 @@ export async function getAll(c: Context): Promise<Response> {
     }
 
     // Build transaction to register a space.
-    const joinTx = getJoinTx({
+    const { to, data } = await getJoinTx({
       spaceEthereumAddress,
       memberEthereumAddress,
       thirdwebSecretKey: c.env.THIRDWEB_SECRET_KEY,
@@ -65,8 +65,8 @@ export async function getAll(c: Context): Promise<Response> {
 
     // Send transaction to engine relayer and get queue Id
     const queueId = await relay({
-      to: joinTx.to as string,
-      data: joinTx.data as string,
+      to,
+      data,
       value: "0",
       engineUrl: c.env.ENGINE_INSTANCE_URL,
       engineAccessToken: c.env.ENGINE_AUTH_TOKEN,

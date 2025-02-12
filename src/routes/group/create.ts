@@ -55,7 +55,7 @@ export async function create(c: Context): Promise<Response> {
     }
 
     // Build transaction to register a space.
-    const registerTx = getCreateAndRegisterTx({
+    const { to, data } = await getCreateAndRegisterTx({
       name,
       symbol,
       description,
@@ -65,8 +65,8 @@ export async function create(c: Context): Promise<Response> {
 
     // Send transaction to engine relayer and get queue Id
     const queueId = await relay({
-      to: registerTx.to as string,
-      data: registerTx.data as string,
+      to,
+      data,
       value: "0",
       engineUrl: c.env.ENGINE_INSTANCE_URL,
       engineAccessToken: c.env.ENGINE_AUTH_TOKEN,
