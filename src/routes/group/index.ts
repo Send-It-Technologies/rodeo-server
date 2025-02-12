@@ -8,7 +8,8 @@ import { create } from "./create";
 // Types
 import { zValidator } from "@hono/zod-validator";
 import { Env } from "../../utils/common/types";
-import { GroupGetQuery, GroupCreateParams } from "./types";
+import { GroupGetQuery, GroupCreateParams, GroupMembersQuery } from "./types";
+import { members } from "./members";
 
 export function groupRoutes(): Hono<{ Bindings: Env }> {
   const app = new Hono<{ Bindings: Env }>();
@@ -19,8 +20,17 @@ export function groupRoutes(): Hono<{ Bindings: Env }> {
     zValidator("query", GroupGetQuery),
     async (c) => await get(c)
   );
+
+  // Get group members by space address.
+  app.get(
+    "/members",
+    zValidator("query", GroupMembersQuery),
+    async (c) => await members(c)
+  );
+
   // Get all groups.
   app.get("/getAll", async (c) => await getAll(c));
+
   // Create a group (and register its space on Rodeo, if not already)
   app.post(
     "/create",
