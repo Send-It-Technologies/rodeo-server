@@ -1,17 +1,17 @@
 import { z } from "zod";
 
 export const MessagesGetAllQuery = z.object({
-  groupId: z.number(),
+  groupId: z.string(),
 });
 
 export const MessagesAddParams = z.object({
-  groupId: z.number(),
+  groupId: z.string(),
   content: z.string(),
   senderEthereumAddress: z.string().startsWith("0x"),
 });
 
 export const MessagesNotifyParams = z.object({
-  groupId: z.number(),
+  groupId: z.string(),
   notification: z.string(),
   senderEthereumAddress: z.string().startsWith("0x"),
 });
