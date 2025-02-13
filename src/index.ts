@@ -10,6 +10,9 @@ import { quoteRoutes } from "./routes/quote";
 // Types
 import { Env } from "./utils/common/types";
 
+// WS
+import { ChatRoom } from "./ChatRoom";
+
 // App
 const app = new Hono<{ Bindings: Env }>();
 
@@ -60,4 +63,5 @@ app.post("/broadcast/:id", async (c) => {
   );
 });
 
+export { ChatRoom };
 export default app;
