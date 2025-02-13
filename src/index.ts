@@ -1,30 +1,17 @@
-// Server
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { createBunWebSocket } from "hono/bun";
-import type { ServerWebSocket } from "bun";
 
 // Routes
 import { relayRoutes } from "./routes/relay";
-
-// Types
-import { Env } from "./utils/common/types";
 import { groupRoutes } from "./routes/group";
 import { messageRoutes } from "./routes/message";
 import { quoteRoutes } from "./routes/quote";
 
+// Types
+import { Env } from "./utils/common/types";
+
 // App
 const app = new Hono<{ Bindings: Env }>();
-
-// Websocket
-const { upgradeWebSocket, websocket } = createBunWebSocket<ServerWebSocket>();
-
-// Start the server
-const server = Bun.serve({
-  port: 8787,
-  fetch: app.fetch,
-  websocket,
-});
 
 // Enable CORS for all routes
 app.use(
@@ -36,34 +23,41 @@ app.use(
 );
 
 // Routes
-
 app.route("/quote", quoteRoutes());
 app.route("/relay", relayRoutes());
-
 app.route("/groups", groupRoutes());
-app.route("/messages", messageRoutes(server));
+app.route("/messages", messageRoutes());
 
-app.get(
-  "/chat/:id",
-  upgradeWebSocket((c) => {
-    const { id } = c.req.param();
+// WebSocket Upgrade - Forward to Durable Object
+app.get("/chat/:id", async (c) => {
+  const { id } = c.req.param();
+  const env = c.env as Env;
 
-    return {
-      onOpen: (_, ws) => {
-        const rawWs = ws.raw as ServerWebSocket;
-        rawWs.subscribe(id);
-        console.log(`WebSocket server opened and subscribed to topic '${id}'`);
-      },
+  // Get the Durable Object instance
+  const durableObjectId = env.CHAT_ROOM.idFromName(id);
+  const durableObjectStub = env.CHAT_ROOM.get(durableObjectId);
 
-      onClose: (_, ws) => {
-        const rawWs = ws.raw as ServerWebSocket;
-        rawWs.unsubscribe(id);
-        console.log(
-          `WebSocket server closed and unsubscribed from topic '${id}'`
-        );
-      },
-    };
-  })
-);
+  // Forward the WebSocket upgrade request to the Durable Object
+  return durableObjectStub.fetch(c.req.raw);
+});
+
+// New route for broadcasting messages
+app.post("/broadcast/:id", async (c) => {
+  const { id } = c.req.param();
+  const message = await c.req.json();
+  const env = c.env as Env;
+
+  const durableObjectId = env.CHAT_ROOM.idFromName(id);
+  const durableObjectStub = env.CHAT_ROOM.get(durableObjectId);
+
+  // Forward the message to the Durable Object for broadcasting
+  return durableObjectStub.fetch(
+    new Request("https://broadcast", {
+      method: "POST",
+      body: JSON.stringify(message),
+      headers: { "Content-Type": "application/json" },
+    })
+  );
+});
 
 export default app;

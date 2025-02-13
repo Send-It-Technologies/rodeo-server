@@ -28,7 +28,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
   // App
   const app = new Hono<{ Bindings: Env }>();
 
-  app.get("/", zValidator("queries", QuoteQuery), async (c) => {
+  app.get("/", zValidator("query", QuoteQuery), async (c) => {
     // Structured logging setup
     const logger = console;
     const startTime = Date.now();

@@ -10,9 +10,11 @@ import { createMessage } from "../../db/api/messages";
 // Logging
 import { logError500 } from "../../utils/log/error";
 import { MessagesNotifyParams } from "./types";
-import { Server } from "bun";
+import { Env } from "../../utils/common/types";
 
-export async function notify(wsServer: Server, c: Context): Promise<Response> {
+export async function notify(c: Context): Promise<Response> {
+  const env = c.env as Env;
+
   // Structured logging setup
   const logger = c.env?.logger || console;
   const startTime = Date.now();
@@ -42,8 +44,15 @@ export async function notify(wsServer: Server, c: Context): Promise<Response> {
       durationMs: Date.now() - startTime,
     });
 
-    // Publish message to room connections
-    wsServer.publish(message.groupId.toString(), JSON.stringify(message));
+    const response = await fetch(`${env.API_BASE_URL}/broadcast/${groupId}`, {
+      method: "POST",
+      body: JSON.stringify(message),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      return c.json({ error: "Failed to broadcast message" }, 500);
+    }
 
     return c.json({ message });
   } catch (error) {

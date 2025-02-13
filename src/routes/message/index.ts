@@ -14,9 +14,8 @@ import {
   MessagesAddParams,
   MessagesNotifyParams,
 } from "./types";
-import { Server } from "bun";
 
-export function messageRoutes(wsServer: Server): Hono<{ Bindings: Env }> {
+export function messageRoutes(): Hono<{ Bindings: Env }> {
   const app = new Hono<{ Bindings: Env }>();
 
   app.get(
@@ -27,12 +26,12 @@ export function messageRoutes(wsServer: Server): Hono<{ Bindings: Env }> {
   app.post(
     "/add",
     zValidator("json", MessagesAddParams),
-    async (c) => await add(wsServer, c)
+    async (c) => await add(c)
   );
   app.post(
     "/notify",
     zValidator("json", MessagesNotifyParams),
-    async (c) => await notify(wsServer, c)
+    async (c) => await notify(c)
   );
 
   return app;

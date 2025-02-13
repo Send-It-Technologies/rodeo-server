@@ -7,6 +7,8 @@ export type Env = {
   ENGINE_WALLET_ADDRESS: string;
   THIRDWEB_SECRET_KEY: string;
   ZRX_API_KEY: string;
+  API_BASE_URL: string;
+  CHAT_ROOM: DurableObjectNamespace;
 };
 
 export type EngineTxReceipt = {

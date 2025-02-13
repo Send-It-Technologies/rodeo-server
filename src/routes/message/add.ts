@@ -14,9 +14,11 @@ import { MessagesAddParams } from "./types";
 
 // Utils
 import { isAddress } from "thirdweb";
-import { Server } from "bun";
+import { Env } from "../../utils/common/types";
 
-export async function add(wsServer: Server, c: Context): Promise<Response> {
+export async function add(c: Context): Promise<Response> {
+  const env = c.env as Env;
+
   // Structured logging setup
   const logger = c.env?.logger || console;
   const startTime = Date.now();
@@ -59,8 +61,15 @@ export async function add(wsServer: Server, c: Context): Promise<Response> {
       durationMs: Date.now() - startTime,
     });
 
-    // Publish message to room connections
-    wsServer.publish(message.groupId.toString(), JSON.stringify(message));
+    const response = await fetch(`${env.API_BASE_URL}/broadcast/${groupId}`, {
+      method: "POST",
+      body: JSON.stringify(message),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      return c.json({ error: "Failed to broadcast message" }, 500);
+    }
 
     // Return message
     return c.json({ message });
