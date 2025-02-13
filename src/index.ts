@@ -18,7 +18,7 @@ const app = new Hono<{ Bindings: Env }>();
 
 // Apply CORS middleware to all routes except /chat/*
 app.use("*", async (c, next) => {
-  if (c.req.path.startsWith("/chat/")) {
+  if (c.req.path.startsWith("/chat/") || c.req.path.startsWith("/broadcast/")) {
     // Skip CORS for WebSocket routes
     await next();
   } else {
