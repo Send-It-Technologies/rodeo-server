@@ -3,7 +3,7 @@ import { Hono } from "hono";
 // Routes
 import { add } from "./add";
 import { notify } from "./notify";
-import { getAll } from "./getAll";
+import { get } from "./get";
 
 // Types
 import { zValidator } from "@hono/zod-validator";
@@ -19,9 +19,9 @@ export function messageRoutes(): Hono<{ Bindings: Env }> {
   const app = new Hono<{ Bindings: Env }>();
 
   app.get(
-    "/getAll",
+    "/get",
     zValidator("query", MessagesGetAllQuery),
-    async (c) => await getAll(c)
+    async (c) => await get(c)
   );
   app.post(
     "/add",

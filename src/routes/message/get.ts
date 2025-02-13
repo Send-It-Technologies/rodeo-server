@@ -11,7 +11,7 @@ import { getGroupMessages, Message } from "../../db/api/messages";
 import { logError500 } from "../../utils/log/error";
 import { MessagesGetAllQuery } from "./types";
 
-export async function getAll(c: Context): Promise<Response> {
+export async function get(c: Context): Promise<Response> {
   // Structured logging setup
   const logger = c.env?.logger || console;
   const startTime = Date.now();
