@@ -24,8 +24,7 @@ CREATE TABLE "messages" (
 	"content" text NOT NULL,
 	"notification" text,
 	"sent_at" timestamp DEFAULT now() NOT NULL,
-	"edited_at" timestamp,
-	CONSTRAINT "messages_ethereum_address_unique" UNIQUE("ethereum_address")
+	"edited_at" timestamp
 );
 --> statement-breakpoint
 ALTER TABLE "members" ADD CONSTRAINT "members_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

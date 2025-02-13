@@ -26,7 +26,7 @@ export const messages = pgTable("messages", {
   groupId: integer("group_id")
     .references(() => groups.id, { onDelete: "cascade" })
     .notNull(),
-  senderEthereumAddress: text("ethereum_address").unique().notNull(),
+  senderEthereumAddress: text("ethereum_address").notNull(),
   content: text("content").notNull(),
   notification: text("notification"),
   sentAt: timestamp("sent_at").defaultNow().notNull(),

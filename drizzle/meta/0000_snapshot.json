@@ -1,5 +1,5 @@
 {
-  "id": "4214c2c5-dfb2-42c6-b47b-428c69cbb00b",
+  "id": "e310d737-5203-4bcb-936e-f8b39847c42d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -192,15 +192,7 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "messages_ethereum_address_unique": {
-          "name": "messages_ethereum_address_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "ethereum_address"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
