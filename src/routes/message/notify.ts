@@ -30,7 +30,7 @@ export async function notify(c: Context): Promise<Response> {
 
     // Database operation
     const message = await createMessage(db, {
-      groupId,
+      groupId: parseInt(groupId),
       senderEthereumAddress,
       notification,
       content: "",

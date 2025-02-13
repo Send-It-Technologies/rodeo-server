@@ -47,7 +47,7 @@ export async function add(c: Context): Promise<Response> {
 
     // Database operation
     const message = await createMessage(db, {
-      groupId,
+      groupId: parseInt(groupId),
       content,
       senderEthereumAddress,
       notification: "",

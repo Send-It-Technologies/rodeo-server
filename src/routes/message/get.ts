@@ -5,11 +5,10 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { getGroupMessages, Message } from "../../db/api/messages";
+import { getGroupMessages } from "../../db/api/messages";
 
 // Logging
 import { logError500 } from "../../utils/log/error";
-import { MessagesGetAllQuery } from "./types";
 
 export async function get(c: Context): Promise<Response> {
   // Structured logging setup
@@ -21,28 +20,10 @@ export async function get(c: Context): Promise<Response> {
     const db = drizzle(client);
 
     // Validate input parameters
-    const params = c.req.query();
-    const { groupId } = MessagesGetAllQuery.parse(params);
-
-    // LOGGING
-    logger.info({
-      event: "TRYING_TO_MESSAGES_FETCHED",
-      groupId: groupId,
-      durationMs: Date.now() - startTime,
-    });
+    const { groupId } = c.req.query();
 
     // Database operation
-    let messages: Message[] = [];
-    try {
-      messages = (await getGroupMessages(db, groupId)) || [];
-    } catch (err) {
-      console.error(err);
-      logger.info({
-        event: "ERROR_TO_MESSAGES_FETCHED",
-        err,
-        durationMs: Date.now() - startTime,
-      });
-    }
+    const messages = (await getGroupMessages(db, parseInt(groupId))) || [];
 
     // Audit logging
     logger.info({
