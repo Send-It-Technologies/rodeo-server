@@ -61,13 +61,19 @@ export async function add(c: Context): Promise<Response> {
       durationMs: Date.now() - startTime,
     });
 
-    const response = await fetch(`${env.API_BASE_URL}/broadcast/${groupId}`, {
-      method: "POST",
-      body: JSON.stringify(message),
-      headers: { "Content-Type": "application/json" },
-    });
+    const durableObjectId = env.CHAT_ROOM.idFromName(groupId);
+    const durableObjectStub = env.CHAT_ROOM.get(durableObjectId);
 
-    if (!response.ok) {
+    // Forward the message to the Durable Object for broadcasting
+    const broadcastResponse = await durableObjectStub.fetch(
+      new Request(env.API_BASE_URL + "/broadcast", {
+        method: "POST",
+        body: JSON.stringify(message),
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    if (!broadcastResponse.ok) {
       // Audit logging
       logger.info({
         event: "FAILED_BROADCAST_NEW_MESSAGE",
