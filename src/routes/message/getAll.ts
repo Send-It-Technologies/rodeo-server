@@ -5,7 +5,7 @@ import { Context } from "hono";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 
-import { getGroupMessages } from "../../db/api/messages";
+import { getGroupMessages, Message } from "../../db/api/messages";
 
 // Logging
 import { logError500 } from "../../utils/log/error";
@@ -22,15 +22,32 @@ export async function getAll(c: Context): Promise<Response> {
 
     // Validate input parameters
     const params = c.req.query();
-    const { groupId: parsedGroupId } = MessagesGetAllQuery.parse(params);
+    const { groupId } = MessagesGetAllQuery.parse(params);
+
+    // LOGGING
+    logger.info({
+      event: "TRYING_TO_MESSAGES_FETCHED",
+      groupId: groupId,
+      durationMs: Date.now() - startTime,
+    });
 
     // Database operation
-    const messages = (await getGroupMessages(db, parsedGroupId)) || [];
+    let messages: Message[] = [];
+    try {
+      messages = (await getGroupMessages(db, groupId)) || [];
+    } catch (err) {
+      console.error(err);
+      logger.info({
+        event: "ERROR_TO_MESSAGES_FETCHED",
+        err,
+        durationMs: Date.now() - startTime,
+      });
+    }
 
     // Audit logging
     logger.info({
       event: "ALL_MESSAGES_FETCHED",
-      groupId: parsedGroupId,
+      groupId: groupId,
       durationMs: Date.now() - startTime,
     });
 
