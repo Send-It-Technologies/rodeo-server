@@ -44,24 +44,5 @@ app.get("/chat/:id", async (c) => {
   return durableObjectStub.fetch(c.req.raw);
 });
 
-// // New route for broadcasting messages
-// app.post("/broadcast/:id", async (c) => {
-//   const { id } = c.req.param();
-//   const message = await c.req.json();
-//   const env = c.env as Env;
-
-//   const durableObjectId = env.CHAT_ROOM.idFromName(id);
-//   const durableObjectStub = env.CHAT_ROOM.get(durableObjectId);
-
-//   // Forward the message to the Durable Object for broadcasting
-//   return durableObjectStub.fetch(
-//     new Request("https://broadcast", {
-//       method: "POST",
-//       body: JSON.stringify(message),
-//       headers: { "Content-Type": "application/json" },
-//     })
-//   );
-// });
-
 export { ChatRoom };
 export default app;
