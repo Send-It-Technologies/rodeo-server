@@ -16,14 +16,19 @@ import { ChatRoom } from "./ChatRoom";
 // App
 const app = new Hono<{ Bindings: Env }>();
 
-// Enable CORS for all routes
-app.use(
-  "*",
-  cors({
-    origin: "http://localhost:5173", // Allow only your frontend
-    credentials: true,
-  })
-);
+// Apply CORS middleware to all routes except /chat/*
+app.use("*", async (c, next) => {
+  if (c.req.path.startsWith("/chat/")) {
+    // Skip CORS for WebSocket routes
+    await next();
+  } else {
+    // Apply CORS for other routes
+    return cors({
+      origin: "http://localhost:5173",
+      credentials: true,
+    })(c, next);
+  }
+});
 
 // Routes
 app.route("/quote", quoteRoutes());
@@ -34,13 +39,8 @@ app.route("/messages", messageRoutes());
 // WebSocket Upgrade - Forward to Durable Object
 app.get("/chat/:id", async (c) => {
   const { id } = c.req.param();
-  const env = c.env as Env;
-
-  // Get the Durable Object instance
-  const durableObjectId = env.CHAT_ROOM.idFromName(id);
-  const durableObjectStub = env.CHAT_ROOM.get(durableObjectId);
-
-  // Forward the WebSocket upgrade request to the Durable Object
+  const durableObjectId = c.env.CHAT_ROOM.idFromName(id);
+  const durableObjectStub = c.env.CHAT_ROOM.get(durableObjectId);
   return durableObjectStub.fetch(c.req.raw);
 });
 
