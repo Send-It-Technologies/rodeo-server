@@ -68,6 +68,14 @@ export async function add(c: Context): Promise<Response> {
     });
 
     if (!response.ok) {
+      // Audit logging
+      logger.info({
+        event: "FAILED_BROADCAST_NEW_MESSAGE",
+        groupId,
+        senderEthereumAddress,
+        durationMs: Date.now() - startTime,
+      });
+
       return c.json({ error: "Failed to broadcast message" }, 500);
     }
 
