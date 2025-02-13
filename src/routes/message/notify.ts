@@ -10,8 +10,9 @@ import { createMessage } from "../../db/api/messages";
 // Logging
 import { logError500 } from "../../utils/log/error";
 import { MessagesNotifyParams } from "./types";
+import { Server } from "bun";
 
-export async function notify(c: Context): Promise<Response> {
+export async function notify(wsServer: Server, c: Context): Promise<Response> {
   // Structured logging setup
   const logger = c.env?.logger || console;
   const startTime = Date.now();
@@ -26,7 +27,7 @@ export async function notify(c: Context): Promise<Response> {
       MessagesNotifyParams.parse(params);
 
     // Database operation
-    const message = createMessage(db, {
+    const message = await createMessage(db, {
       groupId,
       senderEthereumAddress,
       notification,
@@ -40,6 +41,9 @@ export async function notify(c: Context): Promise<Response> {
       senderEthereumAddress,
       durationMs: Date.now() - startTime,
     });
+
+    // Publish message to room connections
+    wsServer.publish(message.groupId.toString(), JSON.stringify(message));
 
     return c.json({ message });
   } catch (error) {

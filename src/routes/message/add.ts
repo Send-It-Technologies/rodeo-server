@@ -14,8 +14,9 @@ import { MessagesAddParams } from "./types";
 
 // Utils
 import { isAddress } from "thirdweb";
+import { Server } from "bun";
 
-export async function add(c: Context): Promise<Response> {
+export async function add(wsServer: Server, c: Context): Promise<Response> {
   // Structured logging setup
   const logger = c.env?.logger || console;
   const startTime = Date.now();
@@ -43,7 +44,7 @@ export async function add(c: Context): Promise<Response> {
     }
 
     // Database operation
-    const message = createMessage(db, {
+    const message = await createMessage(db, {
       groupId,
       content,
       senderEthereumAddress,
@@ -58,6 +59,10 @@ export async function add(c: Context): Promise<Response> {
       durationMs: Date.now() - startTime,
     });
 
+    // Publish message to room connections
+    wsServer.publish(message.groupId.toString(), JSON.stringify(message));
+
+    // Return message
     return c.json({ message });
   } catch (error) {
     return logError500(c, logger, error, startTime);
