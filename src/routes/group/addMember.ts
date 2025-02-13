@@ -17,7 +17,7 @@ import { getJoinTx } from "../../utils/rodeo/join";
 import { relay } from "../../utils/engine/relay";
 import { waitUntilMined } from "../../utils/engine/wait";
 
-export async function getAll(c: Context): Promise<Response> {
+export async function addMember(c: Context): Promise<Response> {
   // Structured logging setup
   const logger = c.env?.logger || console;
   const startTime = Date.now();

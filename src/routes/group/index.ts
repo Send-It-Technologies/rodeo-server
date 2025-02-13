@@ -17,6 +17,7 @@ import {
 } from "./types";
 import { members } from "./members";
 import { getAllOfMember } from "./getAllOfMember";
+import { addMember } from "./addMember";
 
 export function groupRoutes(): Hono<{ Bindings: Env }> {
   const app = new Hono<{ Bindings: Env }>();
@@ -56,7 +57,7 @@ export function groupRoutes(): Hono<{ Bindings: Env }> {
   app.post(
     "/addmember",
     zValidator("json", GroupAddMemberParams),
-    async (c) => await create(c)
+    async (c) => await addMember(c)
   );
 
   return app;
