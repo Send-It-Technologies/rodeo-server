@@ -103,7 +103,7 @@ export async function addMember(c: Context): Promise<Response> {
       durationMs: Date.now() - startTime,
     });
 
-    return c.json({ success: true });
+    return c.json({ transactionHash });
   } catch (error) {
     return logError500(c, logger, error, startTime);
   }
