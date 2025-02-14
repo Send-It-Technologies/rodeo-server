@@ -6,4 +6,10 @@ export const RelayParams = z.object({
   data: z.string().startsWith("0x"),
 });
 
+export const RelayChainParams = z.object({
+  to: z.string().startsWith("0x"),
+  data: z.string().startsWith("0x"),
+  chainId: z.string(),
+});
+
 export type RelayParamsType = z.infer<typeof RelayParams>;

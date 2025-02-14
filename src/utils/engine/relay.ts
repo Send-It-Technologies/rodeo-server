@@ -1,9 +1,8 @@
-import { base } from "thirdweb/chains";
-
 export async function relay({
   to,
   data,
   value,
+  chainId,
   engineUrl,
   engineAccessToken,
   engineWalletAddress,
@@ -11,12 +10,13 @@ export async function relay({
   to: string;
   data: string;
   value: string;
+  chainId: string;
   engineUrl: string;
   engineAccessToken: string;
   engineWalletAddress: string;
 }): Promise<string> {
   const response = await fetch(
-    `${engineUrl}/backend-wallet/${base.id}/send-transaction`,
+    `${engineUrl}/backend-wallet/${chainId}/send-transaction`,
     {
       method: "POST",
       headers: {
