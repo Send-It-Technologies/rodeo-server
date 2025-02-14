@@ -13,7 +13,12 @@ import { logError400, logError500 } from "../../utils/log/error";
 import { zValidator } from "@hono/zod-validator";
 
 import { Env } from "../../utils/common/types";
-import { RelayChainParams, RelayParams, RelayParamsType } from "./types";
+import {
+  RelayChainParams,
+  RelayParams,
+  RelayParamsType,
+  RelayChainParamsType,
+} from "./types";
 import { base } from "thirdweb/chains";
 
 export function relayRoutes(): Hono<{ Bindings: Env }> {
@@ -87,7 +92,8 @@ export function relayRoutes(): Hono<{ Bindings: Env }> {
 
     try {
       // Validate input parameters
-      const { to, data, chainId } = (await c.req.json()) as RelayParamsType;
+      const { to, data, chainId } =
+        (await c.req.json()) as RelayChainParamsType;
 
       if (!isAddress(to)) {
         logger.warn(`Invalid Ethereum address format: ${to}`);

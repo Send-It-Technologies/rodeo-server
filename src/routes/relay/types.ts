@@ -13,3 +13,4 @@ export const RelayChainParams = z.object({
 });
 
 export type RelayParamsType = z.infer<typeof RelayParams>;
+export type RelayChainParamsType = z.infer<typeof RelayChainParams>;
