@@ -24,6 +24,7 @@
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",
     "@neondatabase/serverless": "^0.10.4",
+    "@privy-io/server-auth": "^1.18.9",
     "drizzle-orm": "^0.38.0",
     "hono": "^4.6.12",
     "thirdweb": "^5.87.2",

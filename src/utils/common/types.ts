@@ -8,6 +8,8 @@ export type Env = {
   THIRDWEB_SECRET_KEY: string;
   ZRX_API_KEY: string;
   API_BASE_URL: string;
+  PRIVY_APP_ID: string;
+  PRIVY_APP_SECRET: string;
   CHAT_ROOM: DurableObjectNamespace;
 };
 

@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import { relayRoutes } from "./routes/relay";
 import { groupRoutes } from "./routes/group";
 import { messageRoutes } from "./routes/message";
+import { walletRoutes } from "./routes/wallet";
 import { quoteRoutes } from "./routes/quote";
 
 // Types
@@ -33,6 +34,7 @@ app.use("*", async (c, next) => {
 // Routes
 app.route("/quote", quoteRoutes());
 app.route("/relay", relayRoutes());
+app.route("/wallet", walletRoutes());
 app.route("/groups", groupRoutes());
 app.route("/messages", messageRoutes());
 
