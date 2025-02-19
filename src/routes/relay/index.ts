@@ -61,6 +61,7 @@ export function relayRoutes(): Hono<{ Bindings: Env }> {
       }
 
       // Send transaction to engine relayer and get queue Id
+      console.log("BASE chainId: ", base.id.toString());
       const queueId = await relay({
         to,
         data,
@@ -122,6 +123,7 @@ export function relayRoutes(): Hono<{ Bindings: Env }> {
       }
 
       // Send transaction to engine relayer and get queue Id
+      console.log("Params chainId: ", chainId);
       const queueId = await relay({
         to,
         data,
