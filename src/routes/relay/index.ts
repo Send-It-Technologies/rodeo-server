@@ -73,7 +73,7 @@ export function relayRoutes(): Hono<{ Bindings: Env }> {
 
       // Wait for transaction to get mined
       const transactionHash = await waitUntilMined({
-        polls: 10,
+        polls: 30,
         queueId: queueId,
         engineUrl: c.env.ENGINE_INSTANCE_URL,
         engineAccessToken: c.env.ENGINE_AUTH_TOKEN,
@@ -134,7 +134,7 @@ export function relayRoutes(): Hono<{ Bindings: Env }> {
 
       // Wait for transaction to get mined
       const transactionHash = await waitUntilMined({
-        polls: 10,
+        polls: 30,
         queueId: queueId,
         engineUrl: c.env.ENGINE_INSTANCE_URL,
         engineAccessToken: c.env.ENGINE_AUTH_TOKEN,
