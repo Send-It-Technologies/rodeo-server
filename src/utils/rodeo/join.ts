@@ -4,7 +4,7 @@ import {
   getContract,
   prepareContractCall,
 } from "thirdweb";
-import { base } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 
 export async function getJoinTx({
   spaceEthereumAddress,
@@ -18,7 +18,7 @@ export async function getJoinTx({
   const joinTx = prepareContractCall({
     contract: getContract({
       client: createThirdwebClient({ secretKey: thirdwebSecretKey }),
-      chain: base,
+      chain: baseSepolia,
       address: spaceEthereumAddress,
     }),
     method: "function joinSpace(address) external",

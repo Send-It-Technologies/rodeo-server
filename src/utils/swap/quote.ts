@@ -1,4 +1,4 @@
-import { base } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 
 export async function getQuote({
   buyToken,
@@ -24,7 +24,7 @@ export async function getQuote({
         "0x-version": "v2",
       },
       body: JSON.stringify({
-        chainId: base.id,
+        chainId: baseSepolia.id,
         buyToken,
         sellAmount,
         sellToken,

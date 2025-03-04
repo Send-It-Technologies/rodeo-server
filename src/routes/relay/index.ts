@@ -19,7 +19,7 @@ import {
   RelayParamsType,
   RelayChainParamsType,
 } from "./types";
-import { base } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 
 export function relayRoutes(): Hono<{ Bindings: Env }> {
   // App

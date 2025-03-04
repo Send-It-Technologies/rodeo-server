@@ -1,4 +1,4 @@
-import { base } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 import { EngineTxReceipt } from "../common/types";
 
 export async function getTransactionReceipt({
@@ -12,7 +12,7 @@ export async function getTransactionReceipt({
 }): Promise<EngineTxReceipt> {
   // Get receipt
   const response = await fetch(
-    `${engineUrl}/transaction/${base.id}/tx-hash/${transactionHash}`,
+    `${engineUrl}/transaction/${baseSepolia.id}/tx-hash/${transactionHash}`,
     {
       method: "GET",
       headers: {

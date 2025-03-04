@@ -7,7 +7,7 @@ import { logError400, logError500 } from "../../utils/log/error";
 // Utils
 import { getQuote } from "../../utils/swap/quote";
 
-import { base } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 import {
   createThirdwebClient,
   getContract,
@@ -80,7 +80,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
       // Get treasury address
       const rodeoContract = getContract({
         address: RODEO_ADDRESS,
-        chain: base,
+        chain: baseSepolia,
         client: createThirdwebClient({
           secretKey: c.env.THIRDWEB_SECRET_KEY,
         }),

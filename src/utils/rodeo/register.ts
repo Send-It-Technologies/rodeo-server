@@ -7,7 +7,7 @@ import {
 } from "thirdweb";
 import { maxUint256 } from "thirdweb/utils";
 import { PRICE_MODULE_ADDRESS, RODEO_ADDRESS } from "../common/constants";
-import { base } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 
 export async function getCreateAndRegisterTx({
   name,
@@ -54,7 +54,7 @@ export async function getCreateAndRegisterTx({
   // Build register transaction. NOTE: we inline the JSON method to get proper typing assistance.
   const registerTransaction = prepareContractCall({
     contract: getContract({
-      chain: base,
+      chain: baseSepolia,
       address: RODEO_ADDRESS,
       client: createThirdwebClient({ secretKey: thirdwebSecretKey }),
     }),

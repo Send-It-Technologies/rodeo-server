@@ -3,7 +3,7 @@ import { Context } from "hono";
 
 // Logging
 import { logError400, logError500 } from "../../utils/log/error";
-import { base } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 import { RODEO_ADDRESS } from "../../utils/common/constants";
 import { keccakId } from "thirdweb/utils";
 import { Hex, isAddress, isHex } from "thirdweb";
@@ -80,7 +80,7 @@ export async function exit(c: Context): Promise<Response> {
     const domain = {
       name: "Rodeo",
       version: "1",
-      chainId: base.id,
+      chainId: baseSepolia.id,
       verifyingContract: RODEO_ADDRESS,
     };
 

@@ -1,5 +1,5 @@
 import { createThirdwebClient, getContract, readContract } from "thirdweb";
-import { base } from "thirdweb/chains";
+import { baseSepolia } from "thirdweb/chains";
 import { getRpcClient, eth_getStorageAt } from "thirdweb/rpc";
 import { decodeAbiParameters } from "thirdweb/utils";
 
@@ -14,7 +14,7 @@ export async function getSpaceMembers({
 
   const rpcRequest = getRpcClient({
     client: thirdwebClient,
-    chain: base,
+    chain: baseSepolia,
   });
 
   const encodedNextTokenId = await eth_getStorageAt(rpcRequest, {
@@ -35,7 +35,7 @@ export async function getSpaceMembers({
     const owner = await readContract({
       contract: getContract({
         client: thirdwebClient,
-        chain: base,
+        chain: baseSepolia,
         address: spaceAddress,
       }),
       method: "function ownerOf(uint256) external view returns (address)",
