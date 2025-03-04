@@ -13,19 +13,9 @@ CREATE TABLE "groups" (
 CREATE TABLE "members" (
 	"group_id" integer NOT NULL,
 	"member_ethereum_address" text NOT NULL,
-	"email" text NOT NULL,
+	"email" text,
+	"phone_number" text NOT NULL,
 	CONSTRAINT "members_group_id_member_ethereum_address_pk" PRIMARY KEY("group_id","member_ethereum_address")
 );
 --> statement-breakpoint
-CREATE TABLE "messages" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"group_id" integer NOT NULL,
-	"ethereum_address" text NOT NULL,
-	"content" text NOT NULL,
-	"notification" text,
-	"sent_at" timestamp DEFAULT now() NOT NULL,
-	"edited_at" timestamp
-);
---> statement-breakpoint
-ALTER TABLE "members" ADD CONSTRAINT "members_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "messages" ADD CONSTRAINT "messages_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "members" ADD CONSTRAINT "members_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE cascade ON UPDATE no action;
