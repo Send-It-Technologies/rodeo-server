@@ -1,0 +1,17 @@
+name = "rodeo-server"
+compatibility_date = "2024-09-29"
+compatibility_flags = [ "nodejs_compat" ]
+
+[observability]
+enabled = true
+
+[vars]
+DATABASE_URL=
+ZRX_API_KEY=
+THIRDWEB_SECRET_KEY=
+ENGINE_WALLET_ADDRESS=
+ENGINE_INSTANCE_URL=
+ENGINE_AUTH_TOKEN=
+API_BASE_URL=
+PRIVY_APP_SECRET=
+PRIVY_APP_ID=

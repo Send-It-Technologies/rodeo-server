@@ -1,55 +1,63 @@
-# Hono Backend Starter Kit
+# Rodeo Server
 
-A modern, high-performance backend starter template built with [Hono](https://hono.dev/), featuring PostgreSQL integration with Drizzle ORM and deployment ready for Cloudflare Workers.
-
-## Features
-
-- **Hono Framework**: Ultra-fast web framework for edge computing
-- **Database Integration**: PostgreSQL support with Drizzle ORM
-- **Type Safety**: Full TypeScript support with Zod validation
-- **Edge Ready**: Configured for Cloudflare Workers deployment
-- **Migration Tools**: Database migrations with Drizzle Kit
-- **Modern Stack**: Uses latest versions of all dependencies
+An HTTP server built with [Hono](https://hono.dev/) with a postgres database integration using [Drizzle ORM](https://orm.drizzle.team/) and [Neon.tech](https://neon.tech/), and deployment ready for Cloudflare Workers.
 
 ## Prerequisites
 
 - [Bun](https://bun.sh) Runtime
 - Node.js (v18 or later)
-- PostgreSQL database (I recommend [Neon](https://fyi.neon.tech/2rm) for serverless PostgreSQL)
+- PostgreSQL database on [neon](https://neon.tech/)
 - Cloudflare account (for deployment)
 
-## Getting Started
+## Install
 
 1. Clone the repository:
+
 ```bash
-git clone https://github.com/michaelshimeles/hono-backend-sync
-cd hono-backend
+git clone https://github.com/Send-It-Technologies/rodeo-server.git
+cd rodeo-server
 ```
 
 2. Install dependencies:
+
 ```bash
 bun install
 ```
 
 3. Set up environment variables:
    - Copy `.dev.vars.example` to `.dev.vars`
-   - Add your database URL:
+   - Copy `wrangler.toml.example` to `wrangler.toml`
+
+Add environment variables to both files. For example:
+
 ```env
 DATABASE_URL=your_postgresql_connection_string
 ```
 
-4. Run database migrations:
+## Database
+
+Write or update database schema in `/src/db/` and run the following to generate and push schema:
+
 ```bash
 npx drizzle-kit generate
 npx drizzle-kit push
 ```
 
-5. Start the development server:
+## Development
+
+Run the following to start the development server. The server will start on `http://localhost:8787`.
+
 ```bash
 bun run dev
 ```
 
-The server will start on `http://localhost:8787`
+## Deployment
+
+This repo is configured for deployment to Cloudflare Workers:
+
+```bash
+bun run deploy
+```
 
 ## Project Structure
 
@@ -73,53 +81,3 @@ hono-backend/
 - `bun run deploy` - Deploy to Cloudflare Workers
 - `npx drizzle-kit generate` - Generate database migrations
 - `npx drizzle-kit push` - Create table(s)
-
-## Database Schema
-
-The starter includes a sample products table with the following schema:
-
-```typescript
-products {
-  id: serial (primary key)
-  name: text
-  description: text
-  price: double precision
-}
-```
-
-## API Endpoints
-
-- `GET /` - Fetch all products from the database
-
-All endpoints use Zod for request validation.
-
-## Tech Stack
-
-- [Hono](https://hono.dev/) - Web framework
-- [Drizzle ORM](https://orm.drizzle.team/) - Database ORM
-- [Neon Database](https://neon.tech/) - Serverless PostgreSQL
-- [Zod](https://zod.dev/) - TypeScript-first schema validation
-- [Cloudflare Workers](https://workers.cloudflare.com/) - Edge computing platform
-- [Bun](https://bun.sh) - JavaScript runtime & package manager
-
-## Deployment
-
-This template is configured for deployment to Cloudflare Workers:
-
-```bash
-bun run deploy
-```
-
-Make sure to set up your environment variables in your Cloudflare Workers dashboard.
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
