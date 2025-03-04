@@ -50,7 +50,8 @@ export async function addMemberToGroup(
   db: NeonDatabase,
   groupId: number,
   memberAddress: string,
-  email: string
+  email: string,
+  phoneNumber: string
 ): Promise<void> {
   await db
     .insert(members)
@@ -58,6 +59,7 @@ export async function addMemberToGroup(
       groupId,
       memberEthereumAddress: memberAddress,
       email,
+      phoneNumber,
     })
     .execute();
 }
@@ -119,6 +121,7 @@ export async function getAllMembersWithGroups(
     .select({
       memberEthereumAddress: members.memberEthereumAddress,
       email: members.email,
+      phoneNumber: members.phoneNumber,
       group: groups,
     })
     .from(members)
@@ -126,13 +129,17 @@ export async function getAllMembersWithGroups(
     .execute();
 
   // Group results by member address and email
-  const memberMap = new Map<string, { email: string; groups: Group[] }>();
+  const memberMap = new Map<
+    string,
+    { email: string; phoneNumber: string; groups: Group[] }
+  >();
 
   for (const row of result) {
     const key = `${row.memberEthereumAddress}-${row.email}`;
     if (!memberMap.has(key)) {
       memberMap.set(key, {
-        email: row.email,
+        email: row.email || "",
+        phoneNumber: row.phoneNumber || "",
         groups: [],
       });
     }

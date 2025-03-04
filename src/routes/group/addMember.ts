@@ -16,6 +16,7 @@ import { isAddress } from "thirdweb";
 import { getJoinTx } from "../../utils/rodeo/join";
 import { relay } from "../../utils/engine/relay";
 import { waitUntilMined } from "../../utils/engine/wait";
+import { isValidE164 } from "../../utils/common/isValidE164";
 
 export async function addMember(c: Context): Promise<Response> {
   // Structured logging setup
@@ -27,8 +28,13 @@ export async function addMember(c: Context): Promise<Response> {
     const db = drizzle(client);
 
     // Validate input parameters
-    const { spaceEthereumAddress, memberEthereumAddress, email, chainId } =
-      await c.req.json();
+    const {
+      spaceEthereumAddress,
+      memberEthereumAddress,
+      email,
+      phoneNumber,
+      chainId,
+    } = await c.req.json();
 
     if (!isAddress(spaceEthereumAddress)) {
       logger.warn(`Invalid Ethereum address format: ${spaceEthereumAddress}`);
@@ -52,6 +58,18 @@ export async function addMember(c: Context): Promise<Response> {
         {
           expectedFormat: "0x followed by 40 hexadecimal characters",
           receivedValue: memberEthereumAddress,
+        }
+      );
+    }
+
+    if (!isValidE164(phoneNumber)) {
+      return logError400(
+        c,
+        "VALIDATION_ERROR",
+        "Invalid E164 phone number format",
+        {
+          expectedFormat: "E164 phone number",
+          receivedValue: phoneNumber,
         }
       );
     }
@@ -93,7 +111,13 @@ export async function addMember(c: Context): Promise<Response> {
       db,
       spaceEthereumAddress
     );
-    await addMemberToGroup(db, group.id, memberEthereumAddress, email);
+    await addMemberToGroup(
+      db,
+      group.id,
+      memberEthereumAddress,
+      email,
+      phoneNumber
+    );
 
     // Audit logging
     logger.info({

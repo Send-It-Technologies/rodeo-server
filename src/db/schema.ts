@@ -28,7 +28,8 @@ export const members = pgTable(
       .references(() => groups.id, { onDelete: "cascade" })
       .notNull(),
     memberEthereumAddress: text("member_ethereum_address").notNull(),
-    email: text("email").notNull(),
+    email: text("email"),
+    phoneNumber: text("phone_number").notNull(),
   },
   (table) => {
     return {
