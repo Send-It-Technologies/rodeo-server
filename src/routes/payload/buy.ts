@@ -189,7 +189,7 @@ export async function buy(c: Context): Promise<Response> {
     };
     value.rodeoSig = result;
 
-    return c.json({ domain, types, value });
+    return c.json({ domain, types, value, primaryType: "BuyParams" as const });
   } catch (error) {
     return logError500(c, logger, error, startTime);
   }
