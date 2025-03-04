@@ -26,7 +26,7 @@ app.use(
 // Includes: [ GET "/" ]
 app.route("/quote", quoteRoutes());
 
-// Includes: [ POST: ["/" | "/chain"] ]
+// Includes: POST "/" ]
 app.route("/relay", relayRoutes());
 
 // Includes: [ GET "/phone" ]

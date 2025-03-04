@@ -28,13 +28,8 @@ export async function addMember(c: Context): Promise<Response> {
     const db = drizzle(client);
 
     // Validate input parameters
-    const {
-      spaceEthereumAddress,
-      memberEthereumAddress,
-      email,
-      phoneNumber,
-      chainId,
-    } = await c.req.json();
+    const { spaceEthereumAddress, memberEthereumAddress, email, phoneNumber } =
+      await c.req.json();
 
     if (!isAddress(spaceEthereumAddress)) {
       logger.warn(`Invalid Ethereum address format: ${spaceEthereumAddress}`);
@@ -86,7 +81,6 @@ export async function addMember(c: Context): Promise<Response> {
       to,
       data,
       value: "0",
-      chainId,
       engineUrl: c.env.ENGINE_INSTANCE_URL,
       engineAccessToken: c.env.ENGINE_AUTH_TOKEN,
       engineWalletAddress: c.env.ENGINE_WALLET_ADDRESS,

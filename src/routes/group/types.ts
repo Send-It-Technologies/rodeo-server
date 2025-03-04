@@ -19,7 +19,6 @@ export const GroupCreateParams = z.object({
   adminEmailAddress: z.string().nullable(),
   adminPhoneNumber: z.string(),
   adminEthereumAddress: z.string().startsWith("0x"),
-  chainId: z.string(),
 });
 
 export const GroupAddMemberParams = z.object({
@@ -27,7 +26,6 @@ export const GroupAddMemberParams = z.object({
   memberEthereumAddress: z.string().startsWith("0x"),
   email: z.string().nullable(),
   phoneNumber: z.string(),
-  chainId: z.string(),
 });
 
 export type GroupGetQueryType = z.infer<typeof GroupGetQuery>;
