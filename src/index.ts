@@ -17,19 +17,13 @@ import { ChatRoom } from "./ChatRoom";
 // App
 const app = new Hono<{ Bindings: Env }>();
 
-// Apply CORS middleware to all routes except /chat/*
-app.use("*", async (c, next) => {
-  if (c.req.path.startsWith("/chat/") || c.req.path.startsWith("/broadcast")) {
-    // Skip CORS for WebSocket routes
-    await next();
-  } else {
-    // Apply CORS for other routes
-    return cors({
-      origin: "http://localhost:5173",
-      credentials: true,
-    })(c, next);
-  }
-});
+app.use(
+  "*",
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
 
 // Routes
 app.route("/quote", quoteRoutes());
