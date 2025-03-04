@@ -4,9 +4,17 @@ import { Context } from "hono";
 // Logging
 import { logError400, logError500 } from "../../utils/log/error";
 import { base } from "thirdweb/chains";
-import { RODEO_ADDRESS } from "../../utils/common/constants";
+import { BASE_USDC_ADDRESS, RODEO_ADDRESS } from "../../utils/common/constants";
 import { keccakId } from "thirdweb/utils";
-import { Hex, isAddress, isHex } from "thirdweb";
+import {
+  createThirdwebClient,
+  encode,
+  getContract,
+  Hex,
+  isAddress,
+  prepareContractCall,
+  readContract,
+} from "thirdweb";
 import { ExitPayload, ExitPayloadQueryType } from "./types";
 
 export async function exit(c: Context): Promise<Response> {
@@ -16,14 +24,8 @@ export async function exit(c: Context): Promise<Response> {
 
   try {
     // Validate input parameters
-    const {
-      spaceEthereumAddress,
-      signerAddress,
-      positionId,
-      minBuyAmount,
-      transactionTo,
-      transactionData,
-    } = c.req.query() as ExitPayloadQueryType;
+    const { spaceEthereumAddress, signerAddress, positionId } =
+      c.req.query() as ExitPayloadQueryType;
 
     if (!isAddress(spaceEthereumAddress)) {
       logger.warn(`Invalid Ethereum address format: ${spaceEthereumAddress}`);
@@ -51,32 +53,207 @@ export async function exit(c: Context): Promise<Response> {
       );
     }
 
-    if (!isAddress(transactionTo)) {
-      logger.warn(`Invalid Ethereum address format: ${transactionTo}`);
+    // Get position. We paste the full method ABI to get types.
+    const thirdwebClient = createThirdwebClient({
+      secretKey: c.env.THIRDWEB_SECRET_KEY,
+    });
+
+    const rodeoContract = getContract({
+      address: RODEO_ADDRESS,
+      chain: base,
+      client: thirdwebClient,
+    });
+
+    const position = await readContract({
+      contract: rodeoContract,
+      method: {
+        type: "function",
+        name: "getPosition",
+        inputs: [
+          {
+            name: "positionId",
+            type: "uint96",
+            internalType: "uint96",
+          },
+          {
+            name: "ring",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "tuple",
+            internalType: "struct IPosition.Position",
+            components: [
+              {
+                name: "id",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "totalShares",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "targetToken",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "targetTokenBalance",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "baseTokenSpent",
+                type: "uint256",
+                internalType: "uint256",
+              },
+              {
+                name: "creator",
+                type: "address",
+                internalType: "address",
+              },
+              {
+                name: "performanceFeeBps",
+                type: "uint96",
+                internalType: "uint96",
+              },
+              {
+                name: "stakeBalance",
+                type: "uint256",
+                internalType: "uint256",
+              },
+            ],
+          },
+        ],
+        stateMutability: "view",
+      },
+      params: [BigInt(positionId), spaceEthereumAddress],
+    });
+
+    // Get shares
+    const sharesToken = await readContract({
+      contract: rodeoContract,
+      method:
+        "function getSharesToken(address) external view returns (address)",
+      params: [spaceEthereumAddress],
+    });
+
+    const signerShares = await readContract({
+      contract: getContract({
+        chain: base,
+        client: thirdwebClient,
+        address: sharesToken,
+      }),
+      method:
+        "function balanceOf(address,uint256) external view returns (uint256)",
+      params: [signerAddress, BigInt(positionId)],
+    });
+
+    const exitAmount =
+      (position.targetTokenBalance * signerShares) / position.totalShares;
+
+    // Get treasury address
+    const treasuryAddress = await readContract({
+      contract: rodeoContract,
+      method: "function getTreasury(address) external view returns (address)",
+      params: [spaceEthereumAddress],
+    });
+
+    // Get quote from 0x API
+    const quoteResponse = await fetch(
+      "https://api.0x.org/swap/allowance-holder/quote",
+      {
+        method: "GET",
+        headers: {
+          "0x-api-key": c.env.ZRX_API_KEY as string,
+          "0x-version": "v2",
+        },
+        body: JSON.stringify({
+          chainId: base.id,
+          buyToken: BASE_USDC_ADDRESS,
+          sellAmount: exitAmount,
+          sellToken: position.targetToken,
+          taker: treasuryAddress,
+          slippageBps: "500",
+        }),
+      }
+    );
+
+    if (!quoteResponse.ok) {
       return logError400(
         c,
-        "VALIDATION_ERROR",
-        "Invalid Ethereum address format",
+        "QUOTE RESPONSE ERROR",
+        "Unsuccessful 0x API quote response",
         {
-          expectedFormat: "0x followed by 40 hexadecimal characters",
-          receivedValue: transactionTo,
+          statusText: quoteResponse.statusText,
         }
       );
     }
 
-    if (!isHex(transactionData)) {
-      logger.warn(`Invalid transaction format: ${transactionData}`);
+    const quote = await quoteResponse.json();
+    if (!(quote as any).liquidityAvailable) {
+      logger.warn(
+        `Insufficient liquidity for buying ${BASE_USDC_ADDRESS} in exchange for ${exitAmount.toString()} of ${
+          position.targetToken
+        }`
+      );
       return logError400(
         c,
-        "VALIDATION_ERROR",
-        "Invalid transaction data format",
+        "OUTPUT_ERROR",
+        "Insufficient liquidity for trade",
         {
-          expectedFormat: "0x followed by even hexadecimal characters",
-          receivedValue: transactionData,
+          quote,
         }
       );
     }
 
+    // Build targets and transaction calldata
+    let target: Hex[] = [];
+    let data: Hex[] = [];
+
+    // Approval, if required
+    if ((quote as any).issues && (quote as any).issues.allowance) {
+      const spender: Hex = (quote as any).issues.allowance.spender;
+
+      // Check current allowance.
+      const currentAllowance = await readContract({
+        contract: getContract({
+          client: thirdwebClient,
+          chain: base,
+          address: position.targetToken,
+        }),
+        method:
+          "function allowance(address owner, address spender) external view returns (uint256)",
+        params: [RODEO_ADDRESS, spender],
+      });
+
+      // Perform approval.
+      if (currentAllowance < exitAmount) {
+        const approvalTx = prepareContractCall({
+          contract: getContract({
+            address: position.targetToken,
+            chain: base,
+            client: thirdwebClient,
+          }),
+          method:
+            "function approve(address spender, uint256 amount) external returns (bool)",
+          params: [spender, exitAmount],
+        });
+        const approvalTxData = await encode(approvalTx);
+
+        target.push(position.targetToken as Hex);
+        data.push(approvalTxData);
+      }
+    }
+    target.push((quote as any).transaction.to as Hex);
+    data.push((quote as any).transaction.data as Hex);
+
+    // Build domain, types, values
     const domain = {
       name: "Rodeo",
       version: "1",
@@ -85,7 +262,7 @@ export async function exit(c: Context): Promise<Response> {
     };
 
     const types = {
-      BuyParams: [
+      ExitParams: [
         {
           name: "uid",
           type: "bytes32",
@@ -131,9 +308,9 @@ export async function exit(c: Context): Promise<Response> {
       positionId: positionId,
       signer: signerAddress as Hex,
       deadlineTimestamp: Math.floor(Date.now() / 1000) + 60 * 60, // 20 minutes into the futur
-      minTokenInAmount: minBuyAmount,
-      target: [transactionTo as Hex],
-      data: [transactionData as Hex],
+      minTokenInAmount: (quote as any).minBuyAmount,
+      target,
+      data,
       rodeoSig: "0x" as Hex,
     };
 
