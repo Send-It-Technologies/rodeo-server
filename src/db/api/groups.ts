@@ -50,15 +50,15 @@ export async function addMemberToGroup(
   db: NeonDatabase,
   groupId: number,
   memberAddress: string,
-  email: string,
-  phoneNumber: string
+  phoneNumber: string,
+  email: string | null
 ): Promise<void> {
   await db
     .insert(members)
     .values({
       groupId,
       memberEthereumAddress: memberAddress,
-      email,
+      email: email || null,
       phoneNumber,
     })
     .execute();

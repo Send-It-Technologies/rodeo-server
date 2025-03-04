@@ -16,7 +16,8 @@ export const GroupCreateParams = z.object({
   name: z.string().max(20),
   symbol: z.string().max(5),
   description: z.string().max(50),
-  adminEmailAddress: z.string(),
+  adminEmailAddress: z.string().nullable(),
+  adminPhoneNumber: z.string(),
   adminEthereumAddress: z.string().startsWith("0x"),
   chainId: z.string(),
 });

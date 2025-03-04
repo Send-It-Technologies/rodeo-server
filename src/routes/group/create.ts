@@ -38,6 +38,7 @@ export async function create(c: Context): Promise<Response> {
       symbol,
       description,
       adminEmailAddress,
+      adminPhoneNumber,
       adminEthereumAddress,
       chainId,
     }: GroupCreateParamsType = await c.req.json();
@@ -114,6 +115,7 @@ export async function create(c: Context): Promise<Response> {
       db,
       group.id,
       adminEthereumAddress,
+      adminPhoneNumber,
       adminEmailAddress
     );
 

@@ -115,8 +115,8 @@ export async function addMember(c: Context): Promise<Response> {
       db,
       group.id,
       memberEthereumAddress,
-      email,
-      phoneNumber
+      phoneNumber,
+      email
     );
 
     // Audit logging
