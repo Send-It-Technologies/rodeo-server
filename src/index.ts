@@ -22,9 +22,17 @@ app.use(
 );
 
 // Routes
+
+// Includes: [ GET "/" ]
 app.route("/quote", quoteRoutes());
+
+// Includes: [ POST: ["/" | "/chain"] ]
 app.route("/relay", relayRoutes());
+
+// Includes: [ GET "/phone" ]
 app.route("/wallet", walletRoutes());
+
+// Includes: [ GET: [ "/get" | "/members" | "/all" | "ofmember" ], POST: [ "/create" | "addmember" ] ]
 app.route("/groups", groupRoutes());
 
 export default app;
