@@ -27,7 +27,7 @@ export async function addMember(c: Context): Promise<Response> {
     const db = drizzle(client);
 
     // Validate input parameters
-    const { spaceEthereumAddress, memberEthereumAddress, email } =
+    const { spaceEthereumAddress, memberEthereumAddress, email, chainId } =
       await c.req.json();
 
     if (!isAddress(spaceEthereumAddress)) {
@@ -68,6 +68,7 @@ export async function addMember(c: Context): Promise<Response> {
       to,
       data,
       value: "0",
+      chainId,
       engineUrl: c.env.ENGINE_INSTANCE_URL,
       engineAccessToken: c.env.ENGINE_AUTH_TOKEN,
       engineWalletAddress: c.env.ENGINE_WALLET_ADDRESS,

@@ -25,6 +25,7 @@ export const GroupAddMemberParams = z.object({
   spaceEthereumAddress: z.string().startsWith("0x"),
   memberEthereumAddress: z.string().startsWith("0x"),
   email: z.string(),
+  chainId: z.string(),
 });
 
 export type GroupGetQueryType = z.infer<typeof GroupGetQuery>;
