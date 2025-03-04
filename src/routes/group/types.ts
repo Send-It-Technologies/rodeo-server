@@ -18,6 +18,7 @@ export const GroupCreateParams = z.object({
   description: z.string().max(50),
   adminEmailAddress: z.string(),
   adminEthereumAddress: z.string().startsWith("0x"),
+  chainId: z.string(),
 });
 
 export const GroupAddMemberParams = z.object({

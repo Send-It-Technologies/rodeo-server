@@ -39,6 +39,7 @@ export async function create(c: Context): Promise<Response> {
       description,
       adminEmailAddress,
       adminEthereumAddress,
+      chainId,
     }: GroupCreateParamsType = await c.req.json();
 
     if (!isAddress(adminEthereumAddress)) {
@@ -68,6 +69,7 @@ export async function create(c: Context): Promise<Response> {
       to,
       data,
       value: "0",
+      chainId,
       engineUrl: c.env.ENGINE_INSTANCE_URL,
       engineAccessToken: c.env.ENGINE_AUTH_TOKEN,
       engineWalletAddress: c.env.ENGINE_WALLET_ADDRESS,
