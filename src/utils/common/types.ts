@@ -10,7 +10,6 @@ export type Env = {
   API_BASE_URL: string;
   PRIVY_APP_ID: string;
   PRIVY_APP_SECRET: string;
-  CHAT_ROOM: DurableObjectNamespace;
 };
 
 export type EngineTxReceipt = {

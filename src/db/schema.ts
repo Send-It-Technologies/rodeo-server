@@ -20,19 +20,6 @@ export const groups = pgTable("groups", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Messages table (stores chat messages)
-export const messages = pgTable("messages", {
-  id: serial("id").primaryKey(),
-  groupId: integer("group_id")
-    .references(() => groups.id, { onDelete: "cascade" })
-    .notNull(),
-  senderEthereumAddress: text("ethereum_address").notNull(),
-  content: text("content").notNull(),
-  notification: text("notification"),
-  sentAt: timestamp("sent_at").defaultNow().notNull(),
-  editedAt: timestamp("edited_at"),
-});
-
 // Members of a group
 export const members = pgTable(
   "members",
