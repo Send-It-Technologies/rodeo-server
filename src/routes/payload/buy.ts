@@ -29,11 +29,11 @@ export async function buy(c: Context): Promise<Response> {
   try {
     // Validate input parameters
     const {
-      spaceEthereumAddress,
-      signerAddress,
-      performanceFeeBps,
-      buyTokenAddress,
-      sellTokenAmount,
+      spaceEthereumAddress, // space address
+      signerAddress, // Member who's buying tokens
+      performanceFeeBps, // 1 * 10^18 == 100%
+      buyTokenAddress, // Coin being bought e.g. $PEPE coin
+      sellTokenAmount, // How much USDC do you want to spend?
     } = c.req.query() as BuyPayloadQueryType;
 
     if (!isAddress(spaceEthereumAddress)) {
