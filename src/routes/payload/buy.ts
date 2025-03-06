@@ -3,10 +3,22 @@ import { Context } from "hono";
 
 // Logging
 import { logError400, logError500 } from "../../utils/log/error";
+
+// Blockchain utils
 import { baseSepolia } from "thirdweb/chains";
-import { RODEO_ADDRESS } from "../../utils/common/constants";
+import { BASE_USDC_ADDRESS, RODEO_ADDRESS } from "../../utils/common/constants";
 import { keccakId } from "thirdweb/utils";
-import { Hex, isAddress, isHex } from "thirdweb";
+import {
+  createThirdwebClient,
+  encode,
+  getContract,
+  Hex,
+  isAddress,
+  prepareContractCall,
+  readContract,
+} from "thirdweb";
+
+// Types
 import { BuyPayload, BuyPayloadQueryType } from "./types";
 
 export async function buy(c: Context): Promise<Response> {
@@ -17,14 +29,11 @@ export async function buy(c: Context): Promise<Response> {
   try {
     // Validate input parameters
     const {
-      spaceEthereumAddress,
-      signerAddress,
-      performanceFeeBps,
-      buyTokenAddress,
-      sellTokenAmount,
-      minBuyAmount,
-      transactionTo,
-      transactionData,
+      spaceEthereumAddress, // space address
+      signerAddress, // Member who's buying tokens
+      performanceFeeBps, // 1 * 10^18 == 100%
+      buyTokenAddress, // Coin being bought e.g. $PEPE coin
+      sellTokenAmount, // How much USDC do you want to spend?
     } = c.req.query() as BuyPayloadQueryType;
 
     if (!isAddress(spaceEthereumAddress)) {
@@ -66,32 +75,111 @@ export async function buy(c: Context): Promise<Response> {
       );
     }
 
-    if (!isAddress(transactionTo)) {
-      logger.warn(`Invalid Ethereum address format: ${transactionTo}`);
+    // Get treasury address
+    const thirdwebClient = createThirdwebClient({
+      secretKey: c.env.THIRDWEB_SECRET_KEY,
+    });
+
+    const rodeoContract = getContract({
+      address: RODEO_ADDRESS,
+      chain: baseSepolia,
+      client: thirdwebClient,
+    });
+
+    const treasuryAddress = await readContract({
+      contract: rodeoContract,
+      method: "function getTreasury(address) external view returns (address)",
+      params: [spaceEthereumAddress],
+    });
+
+    // Get quote from 0x API
+    const quoteResponse = await fetch(
+      "https://api.0x.org/swap/allowance-holder/quote",
+      {
+        method: "GET",
+        headers: {
+          "0x-api-key": c.env.ZRX_API_KEY as string,
+          "0x-version": "v2",
+        },
+        body: JSON.stringify({
+          chainId: baseSepolia.id,
+          buyToken: buyTokenAddress,
+          sellAmount: sellTokenAmount,
+          sellToken: BASE_USDC_ADDRESS,
+          taker: treasuryAddress,
+          slippageBps: "500",
+        }),
+      }
+    );
+
+    if (!quoteResponse.ok) {
       return logError400(
         c,
-        "VALIDATION_ERROR",
-        "Invalid Ethereum address format",
+        "QUOTE RESPONSE ERROR",
+        "Unsuccessful 0x API quote response",
         {
-          expectedFormat: "0x followed by 40 hexadecimal characters",
-          receivedValue: transactionTo,
+          statusText: quoteResponse.statusText,
         }
       );
     }
 
-    if (!isHex(transactionData)) {
-      logger.warn(`Invalid transaction format: ${transactionData}`);
+    const quote = await quoteResponse.json();
+    if (!(quote as any).liquidityAvailable) {
+      logger.warn(
+        `Insufficient liquidity for buying ${buyTokenAddress} in exchange for ${sellTokenAmount} of ${BASE_USDC_ADDRESS}`
+      );
       return logError400(
         c,
-        "VALIDATION_ERROR",
-        "Invalid transaction data format",
+        "OUTPUT_ERROR",
+        "Insufficient liquidity for trade",
         {
-          expectedFormat: "0x followed by even hexadecimal characters",
-          receivedValue: transactionData,
+          quote,
         }
       );
     }
 
+    // Build targets and transaction calldata
+    let target: Hex[] = [];
+    let data: Hex[] = [];
+
+    // Approval, if required
+    if ((quote as any).issues && (quote as any).issues.allowance) {
+      const spender: Hex = (quote as any).issues.allowance.spender;
+
+      // Check current allowance.
+      const currentAllowance = await readContract({
+        contract: getContract({
+          client: thirdwebClient,
+          chain: baseSepolia,
+          address: BASE_USDC_ADDRESS,
+        }),
+        method:
+          "function allowance(address owner, address spender) external view returns (uint256)",
+        params: [RODEO_ADDRESS, spender],
+      });
+
+      // Perform approval.
+      if (currentAllowance < BigInt(sellTokenAmount)) {
+        const approvalTx = prepareContractCall({
+          contract: getContract({
+            address: BASE_USDC_ADDRESS,
+            chain: baseSepolia,
+            client: thirdwebClient,
+          }),
+          method:
+            "function approve(address spender, uint256 amount) external returns (bool)",
+          params: [spender, BigInt(sellTokenAmount)],
+        });
+        const approvalTxData = await encode(approvalTx);
+
+        target.push(BASE_USDC_ADDRESS as Hex);
+        data.push(approvalTxData);
+      }
+    }
+    target.push((quote as any).transaction.to as Hex);
+    data.push((quote as any).transaction.data as Hex);
+
+    // Build domain, types, values
     const domain = {
       name: "Rodeo",
       version: "1",
@@ -156,9 +244,9 @@ export async function buy(c: Context): Promise<Response> {
       tokenIn: buyTokenAddress as Hex,
       deadlineTimestamp: Math.floor(Date.now() / 1000) + 60 * 60, // 20 minutes into the future
       tokenOutAmount: sellTokenAmount,
-      minTokenInAmount: minBuyAmount,
-      target: [transactionTo as Hex],
-      data: [transactionData as Hex],
+      minTokenInAmount: (quote as any).minBuyAmount,
+      target,
+      data,
       rodeoSig: "0x" as Hex,
     };
 

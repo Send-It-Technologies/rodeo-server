@@ -13,13 +13,7 @@ import { logError400, logError500 } from "../../utils/log/error";
 import { zValidator } from "@hono/zod-validator";
 
 import { Env } from "../../utils/common/types";
-import {
-  RelayChainParams,
-  RelayParams,
-  RelayParamsType,
-  RelayChainParamsType,
-} from "./types";
-import { baseSepolia } from "thirdweb/chains";
+import { RelayParams, RelayParamsType } from "./types";
 
 export function relayRoutes(): Hono<{ Bindings: Env }> {
   // App

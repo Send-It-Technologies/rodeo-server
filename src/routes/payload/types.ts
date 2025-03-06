@@ -7,18 +7,12 @@ export const BuyPayloadQuery = z.object({
   performanceFeeBps: z.string(),
   buyTokenAddress: z.string().startsWith("0x"),
   sellTokenAmount: z.string(),
-  minBuyAmount: z.string(),
-  transactionTo: z.string().startsWith("0x"),
-  transactionData: z.string().startsWith("0x"),
 });
 
 export const ExitPayloadQuery = z.object({
   spaceEthereumAddress: z.string().startsWith("0x"),
   signerAddress: z.string().startsWith("0x"),
   positionId: z.string(),
-  minBuyAmount: z.string(),
-  transactionTo: z.string().startsWith("0x"),
-  transactionData: z.string().startsWith("0x"),
 });
 
 export type BuyPayloadQueryType = z.infer<typeof BuyPayloadQuery>;
