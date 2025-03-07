@@ -93,22 +93,24 @@ export async function buy(c: Context): Promise<Response> {
     });
 
     // Get quote from 0x API
+    const params = {
+      chainId: base.id.toString(),
+      buyToken: buyTokenAddress,
+      sellAmount: sellTokenAmount,
+      sellToken: BASE_USDC_ADDRESS,
+      taker: treasuryAddress,
+      slippageBps: "500",
+    };
     const quoteResponse = await fetch(
-      "https://api.0x.org/swap/allowance-holder/quote",
+      "https://api.0x.org/swap/allowance-holder/quote" +
+        "?" +
+        new URLSearchParams(params),
       {
         method: "GET",
         headers: {
           "0x-api-key": c.env.ZRX_API_KEY as string,
           "0x-version": "v2",
         },
-        body: JSON.stringify({
-          chainId: base.id,
-          buyToken: buyTokenAddress,
-          sellAmount: sellTokenAmount,
-          sellToken: BASE_USDC_ADDRESS,
-          taker: treasuryAddress,
-          slippageBps: "500",
-        }),
       }
     );
 
