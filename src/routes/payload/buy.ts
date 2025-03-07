@@ -254,7 +254,7 @@ export async function buy(c: Context): Promise<Response> {
 
     // backend-wallet/sign-typed-data
     const response = await fetch(
-      `${c.env.ENGINE_INSTANCE_URL}backend-wallet/sign-typed-data`,
+      `${c.env.ENGINE_INSTANCE_URL}/backend-wallet/sign-typed-data`,
       {
         method: "POST",
         headers: {
@@ -271,7 +271,7 @@ export async function buy(c: Context): Promise<Response> {
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to relay transaction: ${response.statusText}`);
+      throw new Error(`Failed to sign payload: ${response.statusText}`);
     }
 
     const { result } = (await response.json()) as {
