@@ -238,7 +238,7 @@ export async function buy(c: Context): Promise<Response> {
       ],
     };
 
-    const value: BuyPayload = {
+    const message: BuyPayload = {
       uid: keccakId(crypto.randomUUID()),
       ring: spaceEthereumAddress as Hex,
       signer: signerAddress as Hex,
@@ -265,7 +265,7 @@ export async function buy(c: Context): Promise<Response> {
         body: JSON.stringify({
           domain,
           types,
-          value,
+          value: message,
         }),
       }
     );
@@ -277,9 +277,34 @@ export async function buy(c: Context): Promise<Response> {
     const { result } = (await response.json()) as {
       result: Hex;
     };
-    value.rodeoSig = result;
+    message.rodeoSig = result;
 
-    return c.json({ domain, types, value, primaryType: "BuyParams" as const });
+    return c.json({
+      domain,
+      types: {
+        ...types,
+        EIP712Domain: [
+          {
+            name: "name",
+            type: "string",
+          },
+          {
+            name: "version",
+            type: "string",
+          },
+          {
+            name: "chainId",
+            type: "uint256",
+          },
+          {
+            name: "verifyingContract",
+            type: "address",
+          },
+        ],
+      },
+      message,
+      primaryType: "BuyParams" as const,
+    });
   } catch (error) {
     return logError500(c, logger, error, startTime);
   }
