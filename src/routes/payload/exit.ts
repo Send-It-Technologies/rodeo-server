@@ -309,7 +309,7 @@ export async function exit(c: Context): Promise<Response> {
     const message: ExitPayload = {
       uid: keccakId(crypto.randomUUID()),
       ring: spaceEthereumAddress as Hex,
-      positionId: positionId,
+      positionId: parseInt(positionId),
       signer: signerAddress as Hex,
       deadlineTimestamp: Math.floor(Date.now() / 1000) + 60 * 60, // 20 minutes into the futur
       minTokenInAmount: (quote as any).minBuyAmount,
