@@ -165,22 +165,24 @@ export async function exit(c: Context): Promise<Response> {
     });
 
     // Get quote from 0x API
+    const params = {
+      chainId: base.id.toString(),
+      buyToken: BASE_USDC_ADDRESS,
+      sellAmount: exitAmount.toString(),
+      sellToken: position.targetToken,
+      taker: treasuryAddress,
+      slippageBps: "500",
+    };
     const quoteResponse = await fetch(
-      "https://api.0x.org/swap/allowance-holder/quote",
+      "https://api.0x.org/swap/allowance-holder/quote" +
+        "?" +
+        new URLSearchParams(params),
       {
         method: "GET",
         headers: {
           "0x-api-key": c.env.ZRX_API_KEY as string,
           "0x-version": "v2",
         },
-        body: JSON.stringify({
-          chainId: base.id,
-          buyToken: BASE_USDC_ADDRESS,
-          sellAmount: exitAmount,
-          sellToken: position.targetToken,
-          taker: treasuryAddress,
-          slippageBps: "500",
-        }),
       }
     );
 
@@ -211,6 +213,8 @@ export async function exit(c: Context): Promise<Response> {
         }
       );
     }
+
+    console.log("Hello");
 
     // Build targets and transaction calldata
     let target: Hex[] = [];
@@ -302,7 +306,7 @@ export async function exit(c: Context): Promise<Response> {
       ],
     };
 
-    const value: ExitPayload = {
+    const message: ExitPayload = {
       uid: keccakId(crypto.randomUUID()),
       ring: spaceEthereumAddress as Hex,
       positionId: positionId,
@@ -316,7 +320,7 @@ export async function exit(c: Context): Promise<Response> {
 
     // backend-wallet/sign-typed-data
     const response = await fetch(
-      `${c.env.ENGINE_INSTANCE_URL}backend-wallet/sign-typed-data`,
+      `${c.env.ENGINE_INSTANCE_URL}/backend-wallet/sign-typed-data`,
       {
         method: "POST",
         headers: {
@@ -327,7 +331,7 @@ export async function exit(c: Context): Promise<Response> {
         body: JSON.stringify({
           domain,
           types,
-          value,
+          value: message,
         }),
       }
     );
@@ -339,9 +343,14 @@ export async function exit(c: Context): Promise<Response> {
     const { result } = (await response.json()) as {
       result: Hex;
     };
-    value.rodeoSig = result;
+    message.rodeoSig = result;
 
-    return c.json({ domain, types, value, primaryType: "ExitParams" as const });
+    return c.json({
+      domain,
+      types,
+      message,
+      primaryType: "ExitParams" as const,
+    });
   } catch (error) {
     return logError500(c, logger, error, startTime);
   }
