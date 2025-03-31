@@ -135,7 +135,7 @@ export async function exit(c: Context): Promise<Response> {
       params: [BigInt(positionId), spaceEthereumAddress],
     });
 
-    // Get shares
+    // Get shares token
     const sharesToken = await readContract({
       contract: rodeoContract,
       method:
@@ -143,6 +143,7 @@ export async function exit(c: Context): Promise<Response> {
       params: [spaceEthereumAddress],
     });
 
+    // Get signer's shares
     const signerShares = await readContract({
       contract: getContract({
         chain: base,
@@ -154,6 +155,8 @@ export async function exit(c: Context): Promise<Response> {
       params: [signerAddress, BigInt(positionId)],
     });
 
+    // With group exit, all holders' shares will be burned, but we still need to calculate
+    // the signer's proportional amount to estimate the swap
     const exitAmount =
       (position.targetTokenBalance * signerShares) / position.totalShares;
 
@@ -165,12 +168,14 @@ export async function exit(c: Context): Promise<Response> {
     });
 
     // Get quote from 0x API
+    // With group exit, the entire position amount will be swapped with proceeds staying in treasury
+    // We still use the signer's proportional amount for the quote to maintain API compatibility
     const params = {
       chainId: base.id.toString(),
       buyToken: BASE_USDC_ADDRESS,
       sellAmount: exitAmount.toString(),
       sellToken: position.targetToken,
-      taker: treasuryAddress,
+      taker: treasuryAddress, // Funds will stay in treasury with new group exit feature
       slippageBps: "500",
     };
     const quoteResponse = await fetch(
@@ -214,7 +219,7 @@ export async function exit(c: Context): Promise<Response> {
       );
     }
 
-    console.log("Hello");
+    // Note: With the updated RodeoExit.sol, exiting will trigger all position holders' shares to be burned
 
     // Build targets and transaction calldata
     let target: Hex[] = [];
