@@ -45,7 +45,7 @@ export async function buy(c: Context): Promise<Response> {
         {
           expectedFormat: "0x followed by 40 hexadecimal characters",
           receivedValue: spaceEthereumAddress,
-        }
+        },
       );
     }
 
@@ -58,7 +58,7 @@ export async function buy(c: Context): Promise<Response> {
         {
           expectedFormat: "0x followed by 40 hexadecimal characters",
           receivedValue: signerAddress,
-        }
+        },
       );
     }
 
@@ -71,7 +71,7 @@ export async function buy(c: Context): Promise<Response> {
         {
           expectedFormat: "0x followed by 40 hexadecimal characters",
           receivedValue: buyTokenAddress,
-        }
+        },
       );
     }
 
@@ -111,7 +111,7 @@ export async function buy(c: Context): Promise<Response> {
           "0x-api-key": c.env.ZRX_API_KEY as string,
           "0x-version": "v2",
         },
-      }
+      },
     );
 
     if (!quoteResponse.ok) {
@@ -121,14 +121,14 @@ export async function buy(c: Context): Promise<Response> {
         "Unsuccessful 0x API quote response",
         {
           statusText: quoteResponse.statusText,
-        }
+        },
       );
     }
 
     const quote = await quoteResponse.json();
     if (!(quote as any).liquidityAvailable) {
       logger.warn(
-        `Insufficient liquidity for buying ${buyTokenAddress} in exchange for ${sellTokenAmount} of ${BASE_USDC_ADDRESS}`
+        `Insufficient liquidity for buying ${buyTokenAddress} in exchange for ${sellTokenAmount} of ${BASE_USDC_ADDRESS}`,
       );
       return logError400(
         c,
@@ -136,7 +136,7 @@ export async function buy(c: Context): Promise<Response> {
         "Insufficient liquidity for trade",
         {
           quote,
-        }
+        },
       );
     }
 
@@ -267,7 +267,7 @@ export async function buy(c: Context): Promise<Response> {
           types,
           value: message,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
