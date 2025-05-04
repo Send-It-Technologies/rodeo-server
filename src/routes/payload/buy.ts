@@ -244,7 +244,7 @@ export async function buy(c: Context): Promise<Response> {
       signer: signerAddress as Hex,
       performanceFeeBps: performanceFeeBps,
       tokenIn: buyTokenAddress as Hex,
-      deadlineTimestamp: Math.floor(Date.now() / 1000) + 60 * 60, // 20 minutes into the future
+      deadlineTimestamp: Math.floor(Date.now() / 1000) + 20 * 60, // 20 minutes into the future
       tokenOutAmount: sellTokenAmount,
       minTokenInAmount: (quote as any).minBuyAmount,
       target,
