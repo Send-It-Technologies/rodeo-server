@@ -115,12 +115,22 @@ export async function buy(c: Context): Promise<Response> {
     );
 
     if (!quoteResponse.ok) {
+      const errorBody = await quoteResponse.text().catch(() => null);
+      logger.warn({
+        message: "Failed to get 0x API quote",
+        status: quoteResponse.status,
+        statusText: quoteResponse.statusText,
+        errorBody
+      });
+      
       return logError400(
         c,
-        "QUOTE RESPONSE ERROR",
-        "Unsuccessful 0x API quote response",
+        "QUOTE_RESPONSE_ERROR",
+        "Failed to get trading quote from exchange",
         {
+          status: quoteResponse.status,
           statusText: quoteResponse.statusText,
+          details: errorBody ? JSON.parse(errorBody) : null,
         },
       );
     }
@@ -132,10 +142,14 @@ export async function buy(c: Context): Promise<Response> {
       );
       return logError400(
         c,
-        "OUTPUT_ERROR",
-        "Insufficient liquidity for trade",
+        "INSUFFICIENT_LIQUIDITY_ERROR",
+        `Insufficient liquidity for trading ${buyTokenAddress}`,
         {
-          quote,
+          buyToken: buyTokenAddress,
+          sellToken: BASE_USDC_ADDRESS,
+          sellAmount: sellTokenAmount,
+          buyAmount: (quote as any).buyAmount,
+          quoteDetails: quote,
         },
       );
     }
@@ -271,7 +285,9 @@ export async function buy(c: Context): Promise<Response> {
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to sign payload: ${response.statusText}`);
+      const errorResponse = await response.text().catch(() => response.statusText);
+      logger.error(`Failed to sign payload: ${errorResponse}`);
+      return logError500(c, logger, new Error(`Failed to sign payload: ${errorResponse}`), startTime);
     }
 
     const { result } = (await response.json()) as {
@@ -306,6 +322,12 @@ export async function buy(c: Context): Promise<Response> {
       primaryType: "BuyParams" as const,
     });
   } catch (error) {
+    // Log the actual error for debugging
+    logger.error({
+      message: "Error in buy endpoint",
+      error: error instanceof Error ? error.stack : String(error),
+    });
+    
     return logError500(c, logger, error, startTime);
   }
 }

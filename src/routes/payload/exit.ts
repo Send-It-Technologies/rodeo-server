@@ -187,12 +187,22 @@ export async function exit(c: Context): Promise<Response> {
     );
 
     if (!quoteResponse.ok) {
+      const errorBody = await quoteResponse.text().catch(() => null);
+      logger.warn({
+        message: "Failed to get 0x API quote for exit",
+        status: quoteResponse.status,
+        statusText: quoteResponse.statusText,
+        errorBody
+      });
+      
       return logError400(
         c,
-        "QUOTE RESPONSE ERROR",
-        "Unsuccessful 0x API quote response",
+        "QUOTE_RESPONSE_ERROR",
+        "Failed to get trading quote from exchange for exit",
         {
+          status: quoteResponse.status,
           statusText: quoteResponse.statusText,
+          details: errorBody ? JSON.parse(errorBody) : null,
         }
       );
     }
@@ -206,15 +216,18 @@ export async function exit(c: Context): Promise<Response> {
       );
       return logError400(
         c,
-        "OUTPUT_ERROR",
-        "Insufficient liquidity for trade",
+        "INSUFFICIENT_LIQUIDITY_ERROR",
+        `Insufficient liquidity for exiting position with ${position.targetToken}`,
         {
-          quote,
+          buyToken: BASE_USDC_ADDRESS,
+          sellToken: position.targetToken,
+          sellAmount: exitAmount.toString(),
+          positionId,
+          buyAmount: (quote as any).buyAmount,
+          quoteDetails: quote,
         }
       );
     }
-
-    console.log("Hello");
 
     // Build targets and transaction calldata
     let target: Hex[] = [];
@@ -337,7 +350,9 @@ export async function exit(c: Context): Promise<Response> {
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to relay transaction: ${response.statusText}`);
+      const errorResponse = await response.text().catch(() => response.statusText);
+      logger.error(`Failed to sign exit payload: ${errorResponse}`);
+      return logError500(c, logger, new Error(`Failed to sign exit payload: ${errorResponse}`), startTime);
     }
 
     const { result } = (await response.json()) as {
@@ -352,6 +367,12 @@ export async function exit(c: Context): Promise<Response> {
       primaryType: "ExitParams" as const,
     });
   } catch (error) {
+    // Log the actual error for debugging
+    logger.error({
+      message: "Error in exit endpoint",
+      error: error instanceof Error ? error.stack : String(error),
+    });
+    
     return logError500(c, logger, error, startTime);
   }
 }
