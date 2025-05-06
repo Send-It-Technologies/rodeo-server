@@ -1,4 +1,4 @@
-name = "rodeo-server-base-sepolia"
+name = "sendit-server-base-sepolia"
 compatibility_date = "2024-09-29"
 compatibility_flags = [ "nodejs_compat" ]
 
