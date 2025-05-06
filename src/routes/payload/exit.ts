@@ -4,7 +4,7 @@ import { Context } from "hono";
 // Logging
 import { logError400, logError500 } from "../../utils/log/error";
 import { base } from "thirdweb/chains";
-import { BASE_USDC_ADDRESS, RODEO_ADDRESS } from "../../utils/common/constants";
+import { BASE_USDC_ADDRESS, SENDIT_ADDRESS } from "../../utils/common/constants";
 import { keccakId } from "thirdweb/utils";
 import {
   createThirdwebClient,
@@ -58,14 +58,14 @@ export async function exit(c: Context): Promise<Response> {
       secretKey: c.env.THIRDWEB_SECRET_KEY,
     });
 
-    const rodeoContract = getContract({
-      address: RODEO_ADDRESS,
+    const senditContract = getContract({
+      address: SENDIT_ADDRESS,
       chain: base,
       client: thirdwebClient,
     });
 
     const position = await readContract({
-      contract: rodeoContract,
+      contract: senditContract,
       method: {
         type: "function",
         name: "getPosition",
@@ -76,7 +76,7 @@ export async function exit(c: Context): Promise<Response> {
             internalType: "uint96",
           },
           {
-            name: "ring",
+            name: "group",
             type: "address",
             internalType: "address",
           },
@@ -137,7 +137,7 @@ export async function exit(c: Context): Promise<Response> {
 
     // Get shares
     const sharesToken = await readContract({
-      contract: rodeoContract,
+      contract: senditContract,
       method:
         "function getSharesToken(address) external view returns (address)",
       params: [spaceEthereumAddress],
@@ -159,7 +159,7 @@ export async function exit(c: Context): Promise<Response> {
 
     // Get treasury address
     const treasuryAddress = await readContract({
-      contract: rodeoContract,
+      contract: senditContract,
       method: "function getTreasury(address) external view returns (address)",
       params: [spaceEthereumAddress],
     });
@@ -246,7 +246,7 @@ export async function exit(c: Context): Promise<Response> {
         }),
         method:
           "function allowance(address owner, address spender) external view returns (uint256)",
-        params: [RODEO_ADDRESS, spender],
+        params: [SENDIT_ADDRESS, spender],
       });
 
       // Perform approval.
@@ -272,10 +272,10 @@ export async function exit(c: Context): Promise<Response> {
 
     // Build domain, types, values
     const domain = {
-      name: "Rodeo",
+      name: "SendIt",
       version: "1",
       chainId: base.id,
-      verifyingContract: RODEO_ADDRESS,
+      verifyingContract: SENDIT_ADDRESS,
     };
 
     const types = {
@@ -285,7 +285,7 @@ export async function exit(c: Context): Promise<Response> {
           type: "bytes32",
         },
         {
-          name: "ring",
+          name: "group",
           type: "address",
         },
         {
@@ -313,7 +313,7 @@ export async function exit(c: Context): Promise<Response> {
           type: "bytes[]",
         },
         {
-          name: "rodeoSig",
+          name: "sig",
           type: "bytes",
         },
       ],
@@ -321,14 +321,14 @@ export async function exit(c: Context): Promise<Response> {
 
     const message: ExitPayload = {
       uid: keccakId(crypto.randomUUID()),
-      ring: spaceEthereumAddress as Hex,
+      group: spaceEthereumAddress as Hex,
       positionId: parseInt(positionId),
       signer: signerAddress as Hex,
       deadlineTimestamp: Math.floor(Date.now() / 1000) + 60 * 60, // 20 minutes into the futur
       minTokenInAmount: (quote as any).minBuyAmount,
       target,
       data,
-      rodeoSig: "0x" as Hex,
+      sig: "0x" as Hex,
     };
 
     // backend-wallet/sign-typed-data
@@ -358,7 +358,7 @@ export async function exit(c: Context): Promise<Response> {
     const { result } = (await response.json()) as {
       result: Hex;
     };
-    message.rodeoSig = result;
+    message.sig = result;
 
     return c.json({
       domain,
