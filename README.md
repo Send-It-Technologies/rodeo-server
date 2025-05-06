@@ -48,7 +48,7 @@ bun run deploy
 ## Project Structure
 
 ```
-hono-backend/
+rodeo-server/
 ├── src/
 │   ├── index.ts        # Main application entry
 ├── .dev.vars.example   # Example environment variables
