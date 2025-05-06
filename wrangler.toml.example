@@ -6,9 +6,6 @@ compatibility_flags = [ "nodejs_compat" ]
 enabled = true
 
 [vars]
-# Database no longer needed as we removed all database tables
-# DATABASE_URL=
-
 # Engine configuration for transaction relay
 ENGINE_INSTANCE_URL=
 ENGINE_AUTH_TOKEN=
