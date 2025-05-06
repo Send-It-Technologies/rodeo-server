@@ -1,13 +1,12 @@
 import type { Address, Hex } from "thirdweb";
 
 export type Env = {
-  DATABASE_URL: string;
+  // DATABASE_URL removed as we no longer use database tables
   ENGINE_INSTANCE_URL: string;
   ENGINE_AUTH_TOKEN: string;
   ENGINE_WALLET_ADDRESS: string;
   THIRDWEB_SECRET_KEY: string;
   ZRX_API_KEY: string;
-  API_BASE_URL: string;
   PRIVY_APP_ID: string;
   PRIVY_APP_SECRET: string;
 };
