@@ -16,7 +16,7 @@ import {
 } from "thirdweb";
 
 // Constants
-import { RODEO_ADDRESS } from "../../utils/common/constants";
+import { SENDIT_ADDRESS } from "../../utils/common/constants";
 
 // Types
 import { zValidator } from "@hono/zod-validator";
@@ -47,7 +47,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
           {
             expectedFormat: "0x followed by 40 hexadecimal characters",
             receivedValue: spaceAddress,
-          }
+          },
         );
       }
 
@@ -60,7 +60,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
           {
             expectedFormat: "0x followed by 40 hexadecimal characters",
             receivedValue: buyTokenAddress,
-          }
+          },
         );
       }
 
@@ -73,13 +73,13 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
           {
             expectedFormat: "0x followed by 40 hexadecimal characters",
             receivedValue: sellTokenAddress,
-          }
+          },
         );
       }
 
       // Get treasury address
-      const rodeoContract = getContract({
-        address: RODEO_ADDRESS,
+      const sendItContract = getContract({
+        address: SENDIT_ADDRESS,
         chain: baseSepolia,
         client: createThirdwebClient({
           secretKey: c.env.THIRDWEB_SECRET_KEY,
@@ -87,7 +87,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
       });
 
       const treasuryAddress = await readContract({
-        contract: rodeoContract,
+        contract: sendItContract,
         method: "function getTreasury(address) external view returns (address)",
         params: [spaceAddress],
       });
@@ -104,7 +104,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
 
       if (!(quote as any).liquidityAvailable) {
         logger.warn(
-          `Insufficient liquidity for buying ${buyTokenAddress} in exchange for ${sellAmount} of ${sellTokenAddress}`
+          `Insufficient liquidity for buying ${buyTokenAddress} in exchange for ${sellAmount} of ${sellTokenAddress}`,
         );
         return logError400(
           c,
@@ -112,7 +112,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
           "Insufficient liquidity for trade",
           {
             quote,
-          }
+          },
         );
       }
 

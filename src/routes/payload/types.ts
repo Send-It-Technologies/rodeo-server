@@ -20,7 +20,7 @@ export type ExitPayloadQueryType = z.infer<typeof ExitPayloadQuery>;
 
 export type BuyPayload = {
   uid: Hex;
-  ring: Hex;
+  group: Hex;  // Renamed from "ring"
   signer: Hex;
   performanceFeeBps: string;
   tokenIn: Hex;
@@ -29,17 +29,17 @@ export type BuyPayload = {
   minTokenInAmount: string;
   target: Hex[];
   data: Hex[];
-  rodeoSig: Hex;
+  sig: Hex;  // Renamed from "rodeoSig"
 };
 
 export type ExitPayload = {
   uid: Hex;
-  ring: Hex;
+  group: Hex;  // Renamed from "ring"
   positionId: number;
   signer: Hex;
   deadlineTimestamp: number;
   minTokenInAmount: string;
   target: Hex[];
   data: Hex[];
-  rodeoSig: Hex;
+  sig: Hex;  // Renamed from "rodeoSig"
 };

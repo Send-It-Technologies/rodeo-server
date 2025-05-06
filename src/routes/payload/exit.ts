@@ -3,8 +3,11 @@ import { Context } from "hono";
 
 // Logging
 import { logError400, logError500 } from "../../utils/log/error";
-import { baseSepolia } from "thirdweb/chains";
-import { BASE_USDC_ADDRESS, RODEO_ADDRESS } from "../../utils/common/constants";
+import { base, baseSepolia } from "thirdweb/chains";
+import {
+  BASE_USDC_ADDRESS,
+  SENDIT_ADDRESS,
+} from "../../utils/common/constants";
 import { keccakId } from "thirdweb/utils";
 import {
   createThirdwebClient,
@@ -36,7 +39,7 @@ export async function exit(c: Context): Promise<Response> {
         {
           expectedFormat: "0x followed by 40 hexadecimal characters",
           receivedValue: spaceEthereumAddress,
-        }
+        },
       );
     }
 
@@ -49,7 +52,7 @@ export async function exit(c: Context): Promise<Response> {
         {
           expectedFormat: "0x followed by 40 hexadecimal characters",
           receivedValue: signerAddress,
-        }
+        },
       );
     }
 
@@ -58,14 +61,14 @@ export async function exit(c: Context): Promise<Response> {
       secretKey: c.env.THIRDWEB_SECRET_KEY,
     });
 
-    const rodeoContract = getContract({
-      address: RODEO_ADDRESS,
+    const sendItContract = getContract({
+      address: SENDIT_ADDRESS,
       chain: baseSepolia,
       client: thirdwebClient,
     });
 
     const position = await readContract({
-      contract: rodeoContract,
+      contract: sendItContract,
       method: {
         type: "function",
         name: "getPosition",
@@ -76,7 +79,7 @@ export async function exit(c: Context): Promise<Response> {
             internalType: "uint96",
           },
           {
-            name: "ring",
+            name: "group",
             type: "address",
             internalType: "address",
           },
@@ -137,7 +140,7 @@ export async function exit(c: Context): Promise<Response> {
 
     // Get shares
     const sharesToken = await readContract({
-      contract: rodeoContract,
+      contract: sendItContract,
       method:
         "function getSharesToken(address) external view returns (address)",
       params: [spaceEthereumAddress],
@@ -159,14 +162,14 @@ export async function exit(c: Context): Promise<Response> {
 
     // Get treasury address
     const treasuryAddress = await readContract({
-      contract: rodeoContract,
+      contract: sendItContract,
       method: "function getTreasury(address) external view returns (address)",
       params: [spaceEthereumAddress],
     });
 
     // Get quote from 0x API
     const params = {
-      chainId: base.id.toString(),
+      chainId: base.id.toString(), // 0x API supports only Base Mainnet
       buyToken: BASE_USDC_ADDRESS,
       sellAmount: exitAmount.toString(),
       sellToken: position.targetToken,
@@ -183,7 +186,7 @@ export async function exit(c: Context): Promise<Response> {
           "0x-api-key": c.env.ZRX_API_KEY as string,
           "0x-version": "v2",
         },
-      }
+      },
     );
 
     if (!quoteResponse.ok) {
@@ -192,9 +195,9 @@ export async function exit(c: Context): Promise<Response> {
         message: "Failed to get 0x API quote for exit",
         status: quoteResponse.status,
         statusText: quoteResponse.statusText,
-        errorBody
+        errorBody,
       });
-      
+
       return logError400(
         c,
         "QUOTE_RESPONSE_ERROR",
@@ -203,7 +206,7 @@ export async function exit(c: Context): Promise<Response> {
           status: quoteResponse.status,
           statusText: quoteResponse.statusText,
           details: errorBody ? JSON.parse(errorBody) : null,
-        }
+        },
       );
     }
 
@@ -212,7 +215,7 @@ export async function exit(c: Context): Promise<Response> {
       logger.warn(
         `Insufficient liquidity for buying ${BASE_USDC_ADDRESS} in exchange for ${exitAmount.toString()} of ${
           position.targetToken
-        }`
+        }`,
       );
       return logError400(
         c,
@@ -225,7 +228,7 @@ export async function exit(c: Context): Promise<Response> {
           positionId,
           buyAmount: (quote as any).buyAmount,
           quoteDetails: quote,
-        }
+        },
       );
     }
 
@@ -246,7 +249,7 @@ export async function exit(c: Context): Promise<Response> {
         }),
         method:
           "function allowance(address owner, address spender) external view returns (uint256)",
-        params: [RODEO_ADDRESS, spender],
+        params: [SENDIT_ADDRESS, spender],
       });
 
       // Perform approval.
@@ -272,10 +275,10 @@ export async function exit(c: Context): Promise<Response> {
 
     // Build domain, types, values
     const domain = {
-      name: "Rodeo",
+      name: "SendIt",
       version: "1",
       chainId: baseSepolia.id,
-      verifyingContract: RODEO_ADDRESS,
+      verifyingContract: SENDIT_ADDRESS,
     };
 
     const types = {
@@ -285,7 +288,7 @@ export async function exit(c: Context): Promise<Response> {
           type: "bytes32",
         },
         {
-          name: "ring",
+          name: "group",
           type: "address",
         },
         {
@@ -313,7 +316,7 @@ export async function exit(c: Context): Promise<Response> {
           type: "bytes[]",
         },
         {
-          name: "rodeoSig",
+          name: "sig",
           type: "bytes",
         },
       ],
@@ -321,14 +324,14 @@ export async function exit(c: Context): Promise<Response> {
 
     const message: ExitPayload = {
       uid: keccakId(crypto.randomUUID()),
-      ring: spaceEthereumAddress as Hex,
+      group: spaceEthereumAddress as Hex,
       positionId: parseInt(positionId),
       signer: signerAddress as Hex,
       deadlineTimestamp: Math.floor(Date.now() / 1000) + 60 * 60, // 20 minutes into the futur
       minTokenInAmount: (quote as any).minBuyAmount,
       target,
       data,
-      rodeoSig: "0x" as Hex,
+      sig: "0x" as Hex,
     };
 
     // backend-wallet/sign-typed-data
@@ -346,19 +349,26 @@ export async function exit(c: Context): Promise<Response> {
           types,
           value: message,
         }),
-      }
+      },
     );
 
     if (!response.ok) {
-      const errorResponse = await response.text().catch(() => response.statusText);
+      const errorResponse = await response
+        .text()
+        .catch(() => response.statusText);
       logger.error(`Failed to sign exit payload: ${errorResponse}`);
-      return logError500(c, logger, new Error(`Failed to sign exit payload: ${errorResponse}`), startTime);
+      return logError500(
+        c,
+        logger,
+        new Error(`Failed to sign exit payload: ${errorResponse}`),
+        startTime,
+      );
     }
 
     const { result } = (await response.json()) as {
       result: Hex;
     };
-    message.rodeoSig = result;
+    message.sig = result;
 
     return c.json({
       domain,
@@ -372,7 +382,7 @@ export async function exit(c: Context): Promise<Response> {
       message: "Error in exit endpoint",
       error: error instanceof Error ? error.stack : String(error),
     });
-    
+
     return logError500(c, logger, error, startTime);
   }
 }
