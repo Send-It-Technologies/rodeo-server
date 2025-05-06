@@ -78,7 +78,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
       }
 
       // Get treasury address
-      const senditContract = getContract({
+      const sendItContract = getContract({
         address: SENDIT_ADDRESS,
         chain: base,
         client: createThirdwebClient({
@@ -87,7 +87,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
       });
 
       const treasuryAddress = await readContract({
-        contract: senditContract,
+        contract: sendItContract,
         method: "function getTreasury(address) external view returns (address)",
         params: [spaceAddress],
       });

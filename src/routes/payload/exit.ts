@@ -58,14 +58,14 @@ export async function exit(c: Context): Promise<Response> {
       secretKey: c.env.THIRDWEB_SECRET_KEY,
     });
 
-    const senditContract = getContract({
+    const sendItContract = getContract({
       address: SENDIT_ADDRESS,
       chain: base,
       client: thirdwebClient,
     });
 
     const position = await readContract({
-      contract: senditContract,
+      contract: sendItContract,
       method: {
         type: "function",
         name: "getPosition",
@@ -137,7 +137,7 @@ export async function exit(c: Context): Promise<Response> {
 
     // Get shares
     const sharesToken = await readContract({
-      contract: senditContract,
+      contract: sendItContract,
       method:
         "function getSharesToken(address) external view returns (address)",
       params: [spaceEthereumAddress],
@@ -159,7 +159,7 @@ export async function exit(c: Context): Promise<Response> {
 
     // Get treasury address
     const treasuryAddress = await readContract({
-      contract: senditContract,
+      contract: sendItContract,
       method: "function getTreasury(address) external view returns (address)",
       params: [spaceEthereumAddress],
     });
