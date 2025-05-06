@@ -3,7 +3,6 @@ import { cors } from "hono/cors";
 
 // Routes
 import { relayRoutes } from "./routes/relay";
-import { groupRoutes } from "./routes/group";
 import { walletRoutes } from "./routes/wallet";
 import { quoteRoutes } from "./routes/quote";
 import { payloadRoutes } from "./routes/payload";
@@ -32,9 +31,6 @@ app.route("/relay", relayRoutes());
 
 // Includes: [ GET "/phone" ]
 app.route("/wallet", walletRoutes());
-
-// Includes: [ GET: [ "/get" | "/members" | "/all" | "ofmember" ], POST: [ "/create" | "addmember" ] ]
-app.route("/groups", groupRoutes());
 
 // Includes: [ GET: [ "/buy" | "exit" ] ]
 app.route("/payload", payloadRoutes());

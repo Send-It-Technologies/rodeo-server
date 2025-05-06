@@ -1,4 +1,4 @@
-name = "rodeo-server"
+name = "sendit-server"
 compatibility_date = "2024-09-29"
 compatibility_flags = [ "nodejs_compat" ]
 
@@ -6,12 +6,15 @@ compatibility_flags = [ "nodejs_compat" ]
 enabled = true
 
 [vars]
-DATABASE_URL=
-ZRX_API_KEY=
-THIRDWEB_SECRET_KEY=
-ENGINE_WALLET_ADDRESS=
+# Engine configuration for transaction relay
 ENGINE_INSTANCE_URL=
 ENGINE_AUTH_TOKEN=
-API_BASE_URL=
-PRIVY_APP_SECRET=
+ENGINE_WALLET_ADDRESS=
+
+# ThirdWeb and 0x API keys
+THIRDWEB_SECRET_KEY=
+ZRX_API_KEY=
+
+# Privy wallet service
 PRIVY_APP_ID=
+PRIVY_APP_SECRET=
