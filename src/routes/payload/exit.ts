@@ -165,32 +165,44 @@ export async function exit(c: Context): Promise<Response> {
     });
 
     // Get quote from 0x API
+    const params = {
+      chainId: base.id.toString(),
+      buyToken: BASE_USDC_ADDRESS,
+      sellAmount: exitAmount.toString(),
+      sellToken: position.targetToken,
+      taker: treasuryAddress,
+      slippageBps: "500",
+    };
     const quoteResponse = await fetch(
-      "https://api.0x.org/swap/allowance-holder/quote",
+      "https://api.0x.org/swap/allowance-holder/quote" +
+        "?" +
+        new URLSearchParams(params),
       {
         method: "GET",
         headers: {
           "0x-api-key": c.env.ZRX_API_KEY as string,
           "0x-version": "v2",
         },
-        body: JSON.stringify({
-          chainId: baseSepolia.id,
-          buyToken: BASE_USDC_ADDRESS,
-          sellAmount: exitAmount,
-          sellToken: position.targetToken,
-          taker: treasuryAddress,
-          slippageBps: "500",
-        }),
       }
     );
 
     if (!quoteResponse.ok) {
+      const errorBody = await quoteResponse.text().catch(() => null);
+      logger.warn({
+        message: "Failed to get 0x API quote for exit",
+        status: quoteResponse.status,
+        statusText: quoteResponse.statusText,
+        errorBody
+      });
+      
       return logError400(
         c,
-        "QUOTE RESPONSE ERROR",
-        "Unsuccessful 0x API quote response",
+        "QUOTE_RESPONSE_ERROR",
+        "Failed to get trading quote from exchange for exit",
         {
+          status: quoteResponse.status,
           statusText: quoteResponse.statusText,
+          details: errorBody ? JSON.parse(errorBody) : null,
         }
       );
     }
@@ -204,10 +216,15 @@ export async function exit(c: Context): Promise<Response> {
       );
       return logError400(
         c,
-        "OUTPUT_ERROR",
-        "Insufficient liquidity for trade",
+        "INSUFFICIENT_LIQUIDITY_ERROR",
+        `Insufficient liquidity for exiting position with ${position.targetToken}`,
         {
-          quote,
+          buyToken: BASE_USDC_ADDRESS,
+          sellToken: position.targetToken,
+          sellAmount: exitAmount.toString(),
+          positionId,
+          buyAmount: (quote as any).buyAmount,
+          quoteDetails: quote,
         }
       );
     }
@@ -302,10 +319,10 @@ export async function exit(c: Context): Promise<Response> {
       ],
     };
 
-    const value: ExitPayload = {
+    const message: ExitPayload = {
       uid: keccakId(crypto.randomUUID()),
       ring: spaceEthereumAddress as Hex,
-      positionId: positionId,
+      positionId: parseInt(positionId),
       signer: signerAddress as Hex,
       deadlineTimestamp: Math.floor(Date.now() / 1000) + 60 * 60, // 20 minutes into the futur
       minTokenInAmount: (quote as any).minBuyAmount,
@@ -316,7 +333,7 @@ export async function exit(c: Context): Promise<Response> {
 
     // backend-wallet/sign-typed-data
     const response = await fetch(
-      `${c.env.ENGINE_INSTANCE_URL}backend-wallet/sign-typed-data`,
+      `${c.env.ENGINE_INSTANCE_URL}/backend-wallet/sign-typed-data`,
       {
         method: "POST",
         headers: {
@@ -327,22 +344,35 @@ export async function exit(c: Context): Promise<Response> {
         body: JSON.stringify({
           domain,
           types,
-          value,
+          value: message,
         }),
       }
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to relay transaction: ${response.statusText}`);
+      const errorResponse = await response.text().catch(() => response.statusText);
+      logger.error(`Failed to sign exit payload: ${errorResponse}`);
+      return logError500(c, logger, new Error(`Failed to sign exit payload: ${errorResponse}`), startTime);
     }
 
     const { result } = (await response.json()) as {
       result: Hex;
     };
-    value.rodeoSig = result;
+    message.rodeoSig = result;
 
-    return c.json({ domain, types, value, primaryType: "ExitParams" as const });
+    return c.json({
+      domain,
+      types,
+      message,
+      primaryType: "ExitParams" as const,
+    });
   } catch (error) {
+    // Log the actual error for debugging
+    logger.error({
+      message: "Error in exit endpoint",
+      error: error instanceof Error ? error.stack : String(error),
+    });
+    
     return logError500(c, logger, error, startTime);
   }
 }

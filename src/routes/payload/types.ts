@@ -35,7 +35,7 @@ export type BuyPayload = {
 export type ExitPayload = {
   uid: Hex;
   ring: Hex;
-  positionId: string;
+  positionId: number;
   signer: Hex;
   deadlineTimestamp: number;
   minTokenInAmount: string;

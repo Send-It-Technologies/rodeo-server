@@ -15,23 +15,25 @@ export async function getQuote({
   slippageBps: string;
   zrxApiKey: string;
 }) {
+  const params = {
+    chainId: base.id.toString(),
+    buyToken,
+    sellAmount,
+    sellToken,
+    taker,
+    slippageBps,
+  };
   const response = await fetch(
-    "https://api.0x.org/swap/allowance-holder/quote",
+    "https://api.0x.org/swap/allowance-holder/quote" +
+      "?" +
+      new URLSearchParams(params),
     {
       method: "GET",
       headers: {
         "0x-api-key": zrxApiKey as string,
         "0x-version": "v2",
       },
-      body: JSON.stringify({
-        chainId: baseSepolia.id,
-        buyToken,
-        sellAmount,
-        sellToken,
-        taker,
-        slippageBps,
-      }),
-    }
+    },
   );
 
   if (!response.ok) {
