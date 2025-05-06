@@ -6,7 +6,7 @@ import {
   ZERO_ADDRESS,
 } from "thirdweb";
 import { maxUint256 } from "thirdweb/utils";
-import { PRICE_MODULE_ADDRESS, RODEO_ADDRESS } from "../common/constants";
+import { PRICE_MODULE_ADDRESS, SENDIT_ADDRESS } from "../common/constants";
 import { base } from "thirdweb/chains";
 
 export async function getCreateAndRegisterTx({
@@ -55,7 +55,7 @@ export async function getCreateAndRegisterTx({
   const registerTransaction = prepareContractCall({
     contract: getContract({
       chain: base,
-      address: RODEO_ADDRESS,
+      address: SENDIT_ADDRESS,
       client: createThirdwebClient({ secretKey: thirdwebSecretKey }),
     }),
     params: [spaceInfo, adminEthereumAddress],
@@ -225,5 +225,5 @@ export async function getCreateAndRegisterTx({
     },
   });
 
-  return { to: RODEO_ADDRESS, data: await encode(registerTransaction) };
+  return { to: SENDIT_ADDRESS, data: await encode(registerTransaction) };
 }

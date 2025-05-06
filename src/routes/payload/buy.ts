@@ -6,7 +6,7 @@ import { logError400, logError500 } from "../../utils/log/error";
 
 // Blockchain utils
 import { base } from "thirdweb/chains";
-import { BASE_USDC_ADDRESS, RODEO_ADDRESS } from "../../utils/common/constants";
+import { BASE_USDC_ADDRESS, SENDIT_ADDRESS } from "../../utils/common/constants";
 import { keccakId } from "thirdweb/utils";
 import {
   createThirdwebClient,
@@ -80,14 +80,14 @@ export async function buy(c: Context): Promise<Response> {
       secretKey: c.env.THIRDWEB_SECRET_KEY,
     });
 
-    const rodeoContract = getContract({
-      address: RODEO_ADDRESS,
+    const sendItContract = getContract({
+      address: SENDIT_ADDRESS,
       chain: base,
       client: thirdwebClient,
     });
 
     const treasuryAddress = await readContract({
-      contract: rodeoContract,
+      contract: sendItContract,
       method: "function getTreasury(address) external view returns (address)",
       params: [spaceEthereumAddress],
     });
@@ -171,7 +171,7 @@ export async function buy(c: Context): Promise<Response> {
         }),
         method:
           "function allowance(address owner, address spender) external view returns (uint256)",
-        params: [RODEO_ADDRESS, spender],
+        params: [SENDIT_ADDRESS, spender],
       });
 
       // Perform approval.
@@ -197,10 +197,10 @@ export async function buy(c: Context): Promise<Response> {
 
     // Build domain, types, values
     const domain = {
-      name: "Rodeo",
+      name: "SendIt",
       version: "1",
       chainId: base.id,
-      verifyingContract: RODEO_ADDRESS,
+      verifyingContract: SENDIT_ADDRESS,
     };
 
     const types = {
@@ -210,7 +210,7 @@ export async function buy(c: Context): Promise<Response> {
           type: "bytes32",
         },
         {
-          name: "ring",
+          name: "group",
           type: "address",
         },
         {
@@ -246,7 +246,7 @@ export async function buy(c: Context): Promise<Response> {
           type: "bytes[]",
         },
         {
-          name: "rodeoSig",
+          name: "sig",
           type: "bytes",
         },
       ],
@@ -254,7 +254,7 @@ export async function buy(c: Context): Promise<Response> {
 
     const message: BuyPayload = {
       uid: keccakId(crypto.randomUUID()),
-      ring: spaceEthereumAddress as Hex,
+      group: spaceEthereumAddress as Hex,
       signer: signerAddress as Hex,
       performanceFeeBps: performanceFeeBps,
       tokenIn: buyTokenAddress as Hex,
@@ -263,7 +263,7 @@ export async function buy(c: Context): Promise<Response> {
       minTokenInAmount: (quote as any).minBuyAmount,
       target,
       data,
-      rodeoSig: "0x" as Hex,
+      sig: "0x" as Hex,
     };
 
     // backend-wallet/sign-typed-data
@@ -293,7 +293,7 @@ export async function buy(c: Context): Promise<Response> {
     const { result } = (await response.json()) as {
       result: Hex;
     };
-    message.rodeoSig = result;
+    message.sig = result;
 
     return c.json({
       domain,

@@ -16,7 +16,7 @@ import {
 } from "thirdweb";
 
 // Constants
-import { RODEO_ADDRESS } from "../../utils/common/constants";
+import { SENDIT_ADDRESS } from "../../utils/common/constants";
 
 // Types
 import { zValidator } from "@hono/zod-validator";
@@ -78,8 +78,8 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
       }
 
       // Get treasury address
-      const rodeoContract = getContract({
-        address: RODEO_ADDRESS,
+      const sendItContract = getContract({
+        address: SENDIT_ADDRESS,
         chain: base,
         client: createThirdwebClient({
           secretKey: c.env.THIRDWEB_SECRET_KEY,
@@ -87,7 +87,7 @@ export function quoteRoutes(): Hono<{ Bindings: Env }> {
       });
 
       const treasuryAddress = await readContract({
-        contract: rodeoContract,
+        contract: sendItContract,
         method: "function getTreasury(address) external view returns (address)",
         params: [spaceAddress],
       });
